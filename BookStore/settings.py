@@ -27,6 +27,7 @@ INSTALLED_APPS = [
     # my apps
     'account.apps.AccountConfig',
     'bookmanager.apps.BookmanagerConfig',
+    'pages.apps.PagesConfig'
 
 ]
 
@@ -52,6 +53,9 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+
+                # context proccessors
+                'bookmanager.context_processors.categories',
             ],
         },
     },
