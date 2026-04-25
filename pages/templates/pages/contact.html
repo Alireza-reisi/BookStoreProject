@@ -1,0 +1,173 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+contact us
+{% endblock %}
+
+{% block description %}
+{% endblock %}
+
+{% block content %}
+<main>
+
+    <div class="breadcrumb-items">
+        <div class="row">
+            <ul class="breadcrumb">
+                <li>
+                    <a href="index.html" class="breadcrumb-link">صفحه اصلی</a>
+                </li>
+                <li class="chevron"><span class="fa fa-chevron-left"></span></li>
+                <li>
+                    <span class="breadcrumb-active">تماس با ما</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="row">
+            <div class="col-xl-12">
+                <div class="slider-area">
+                    <div class="slider-height2 slider-bg5 d-flex align-items-center justify-content-center">
+                        <div class="hero-caption hero-caption2">
+                            <h2>تماس با ما</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <section class="contact-section">
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <h2 class="contact-title">اطلاعات تماس</h2>
+                </div>
+                <div class="col-lg-8">
+                    <form method="post" action="{% url 'pages:contactus' %}" class="form-contact contact_form"
+                          novalidate>
+                        {% csrf_token %}
+
+                        {% if messages %}
+                            {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} mt-3" role="alert">
+                                {{ message }}
+                            </div>
+                            {% endfor %}
+                        {% endif %}
+
+                        {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {{ form.non_field_errors }}
+                        </div>
+                        {% endif %}
+
+                        <div class="row">
+                            {# متن پیام #}
+                            <div class="col-12">
+                                <div class="form-group">
+                                    {{ form.message }}
+                                    {% if form.message.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.message.errors %}
+                                        {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            {# نام #}
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    {{ form.name }}
+                                    {% if form.name.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.name.errors %}
+                                        {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            {# ایمیل #}
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    {{ form.email }}
+                                    {% if form.email.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.email.errors %}
+                                        {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            {# موضوع #}
+                            <div class="col-12">
+                                <div class="form-group">
+                                    {{ form.subject }}
+                                    {% if form.subject.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.subject.errors %}
+                                        {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group mt-3">
+                            <button type="submit" class="button button-contactForm boxed-btn">
+                                ارسال
+                            </button>
+                        </div>
+                    </form>
+
+                    {# پیام موفقیت (اگر از messages استفاده کنیم) #}
+                    {% if messages %}
+                    {% for message in messages %}
+                    <div class="alert alert-success mt-3">
+                        {{ message }}
+                    </div>
+                    {% endfor %}
+                    {% endif %}
+                </div>
+                <div class="col-lg-3 offset-lg-1">
+                    <div class="media contact-info">
+                        <span class="contact-info__icon"><i class="ti-home"></i></span>
+                        <div class="media-body">
+                            <h3>ایران، تهران</h3>
+                            <p>میدان آزادی</p>
+                        </div>
+                    </div>
+                    <div class="media contact-info">
+                        <span class="contact-info__icon"><i class="ti-tablet"></i></span>
+                        <div class="media-body">
+                            <h3>02112345678</h3>
+                            <p>شنبه تا پنج شنبه ساعت 8 الی 20</p>
+                        </div>
+                    </div>
+                    <div class="media contact-info">
+                        <span class="contact-info__icon"><i class="ti-email"></i></span>
+                        <div class="media-body">
+                            <h3>
+                                <a href="mailto:designer@sitranet.com"
+                                   class="__cf_email__">designer@sitranet.com</a>
+                            </h3>
+                            <p>ایمیل مجموعه</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+</main>
+{% endblock %}
