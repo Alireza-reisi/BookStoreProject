@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.utils.html import format_html
-
+from .forms import CommentAdminForm
 from .models import Category, Publisher, Book, Comment, Author
 
 
@@ -224,23 +224,44 @@ class BookAdmin(admin.ModelAdmin):
 
 @admin.register(Comment)
 class CommentAdmin(admin.ModelAdmin):
-    list_display = ("book", "author", "short_text", "is_active", "created_at")
-    list_filter = ("is_active", "created_at", "book")
-    search_fields = ("book__title", "author__username", "text")
-    ordering = ("-created_at",)
+    form = CommentAdminForm
 
-    readonly_fields = ("created_at",)
+    list_display = (
+        "content_object",
+        "content_type",
+        "user",
+        "short_text",
+        "is_active",
+        "created_at",
+    )
+
+    readonly_fields = ("created_at", "content_object")
 
     fieldsets = (
-        ("اطلاعات اصلی", {
-            "fields": ("book", "author", "text")
+        ("ارتباط", {
+            "fields": (
+                "content_type",
+                "object_id",
+            )
         }),
+
+        ("اطلاعات نظر", {
+            "fields": (
+                "user",
+                "text",
+            )
+        }),
+
         ("وضعیت", {
-            "fields": ("is_active", "created_at"),
+            "fields": (
+                "is_active",
+                "created_at",
+                "content_object",
+            )
         }),
     )
 
     def short_text(self, obj):
-        return (obj.text[:40] + "…") if len(obj.text) > 40 else obj.text
+        return (obj.text[:50] + "…") if len(obj.text) > 50 else obj.text
 
     short_text.short_description = "خلاصه نظر"

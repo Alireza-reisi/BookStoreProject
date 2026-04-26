@@ -2,6 +2,39 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.utils.text import slugify
 from django.urls import reverse
+from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
+from django.contrib.contenttypes.models import ContentType
+
+
+class Comment(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="book_comments", verbose_name="کاربر",
+                             error_messages={
+                                 "blank": "این فیلد اجباری است."
+                             }
+                             )
+
+    # generic relation to ANY model (Book, Author, ...)
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    object_id = models.PositiveIntegerField()
+    content_object = GenericForeignKey('content_type', 'object_id')
+
+    # actual comment
+    text = models.TextField(max_length=500, verbose_name="متن نظر",
+                            error_messages={
+                                "blank": "این فیلد اجباری است."
+                            })
+    rating = models.PositiveSmallIntegerField(null=True, blank=True)
+
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="تاریخ ثبت")
+    is_active = models.BooleanField(default=True, verbose_name="فعال")
+
+    class Meta:
+        verbose_name = "نظر"
+        verbose_name_plural = "نظرات"
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"Comment by {self.user} on {self.content_object}"
 
 
 class Author(models.Model):
@@ -33,6 +66,8 @@ class Author(models.Model):
 
     slug = models.SlugField(unique=True, blank=True,
                             error_messages={'unique': "این اسلاگ قبلاً ثبت شده است. یک اسلاگ دیگر انتخاب کنید.", })
+
+    comments = GenericRelation(Comment)
 
     class Meta:
         verbose_name = "نویسنده"
@@ -273,6 +308,8 @@ class Book(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    comments = GenericRelation(Comment)
+
     # -------------------
     # Meta
     # -------------------
@@ -317,41 +354,3 @@ class Book(models.Model):
             self.slug = slug
 
         super().save(*args, **kwargs)
-
-
-class Comment(models.Model):
-    book = models.ForeignKey(
-        Book,
-        on_delete=models.CASCADE,
-        related_name="comments",
-        verbose_name="کتاب",
-        error_messages={
-            "blank": "این فیلد اجباری است."
-        }
-    )
-
-    author = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        related_name="book_comments",
-        verbose_name="کاربر",
-        error_messages={
-            "blank": "این فیلد اجباری است."
-        }
-    )
-
-    text = models.TextField(max_length=500, verbose_name="متن نظر",
-                            error_messages={
-                                "blank": "این فیلد اجباری است."
-                            })
-    created_at = models.DateTimeField(auto_now_add=True, verbose_name="تاریخ ثبت")
-
-    is_active = models.BooleanField(default=True, verbose_name="فعال")
-
-    class Meta:
-        verbose_name = "نظر"
-        verbose_name_plural = "نظرات"
-        ordering = ["-created_at"]
-
-    def __str__(self):
-        return f"{self.book.title} - {self.author.username}"
