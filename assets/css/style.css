@@ -1521,6 +1521,29 @@ hr {
     background-image: url(../img/bg/h2_hero2.jpg)
 }
 
+.slider-bg-contact {
+    background-image: url(../img/bg/contact-banner2.jpg);
+    border-radius: 15px;
+}
+
+.slider-bg-about {
+    position: relative;
+    background-image: url(../img/bg/about.jpg);
+    border-radius: 15px;
+}
+
+.slider-bg-about::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: 15px;
+
+}
+
 .slider-area.home {
     background-color: #ECFFFF;
     direction: ltr;
@@ -1574,6 +1597,7 @@ hr {
     right: 3%;
     bottom: 5%;
 }
+
 
 @media only screen and (min-width: 992px) and (max-width: 1199px) {
     .slider-area .hero-caption h1 {
@@ -8533,6 +8557,13 @@ a.text-muted:focus {
     .publishers .list-caption {
         width: 250px;
     }
+}
+
+.hero-caption-about h2 {
+    position: relative;
+    z-index: 2;
+    color: #fff !important;
+    text-align: center;
 }
 
 @media only screen and (max-width: 380px) {

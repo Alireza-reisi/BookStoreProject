@@ -2,6 +2,7 @@ from django import forms
 from django.core.exceptions import ValidationError
 from .models import ContactMessage
 import re
+from captcha.fields import CaptchaField
 
 DANGEROUS_CHARS = r"[<>\/\\{}\[\];:\"'`$%^*=+|&]"
 
@@ -12,9 +13,11 @@ def validate_safe_characters(value, field_name):
 
 
 class ContactForm(forms.ModelForm):
+    captcha = CaptchaField(label="کد امنیتی")
+
     class Meta:
         model = ContactMessage
-        fields = ["message", "name", "email", "subject"]
+        fields = ["message", "name", "email", "subject", "captcha"]
 
         widgets = {
             "message": forms.Textarea(attrs={"class": "form-control w-100", "placeholder": "متن پیام", "rows": 9}),

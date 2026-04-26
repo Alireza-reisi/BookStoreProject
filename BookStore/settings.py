@@ -27,7 +27,10 @@ INSTALLED_APPS = [
     # my apps
     'account.apps.AccountConfig',
     'bookmanager.apps.BookmanagerConfig',
-    'pages.apps.PagesConfig'
+    'pages.apps.PagesConfig',
+
+    # simple-captcha
+    "captcha",
 
 ]
 

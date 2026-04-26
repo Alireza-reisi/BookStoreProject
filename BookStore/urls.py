@@ -8,6 +8,7 @@ urlpatterns = [
     path('account/', include('account.urls'), ),
     path('book/', include('bookmanager.urls'), ),
     path('', include('pages.urls'), ),
+    path("captcha/", include("captcha.urls")),
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
