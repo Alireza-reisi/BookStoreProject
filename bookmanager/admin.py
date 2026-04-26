@@ -91,33 +91,41 @@ class PublisherAdmin(admin.ModelAdmin):
 class BookAdmin(admin.ModelAdmin):
     list_display = (
         "title",
-        "english_title",
         "author",
         "publisher",
-        "available",
-        "sell_count",
-        "view_count",
-        "download_count",
+        "product_type",
+        "price",
+        "discount_price",
+        "final_price_display",
+        "stock",
+        "is_in_stock_display",
+        "status",
+        "is_active",
         "cover_tag",
         "created_at",
     )
+
     list_filter = (
-        "available",
+        "product_type",
+        "status",
+        "is_active",
         "publisher",
         "categories",
         "created_at",
-        "published_date",
     )
+
     search_fields = (
         "title",
         "english_title",
-        "author",
-        "translator",
+        "author__name",
         "publisher__name",
         "publisher__english_name",
+        "sku",
         "slug",
     )
+
     prepopulated_fields = {"slug": ("english_title",)}
+
     filter_horizontal = ("categories",)
 
     readonly_fields = (
@@ -125,6 +133,7 @@ class BookAdmin(admin.ModelAdmin):
         "view_count",
         "download_count",
         "created_at",
+        "updated_at",
         "cover_tag",
     )
 
@@ -137,11 +146,24 @@ class BookAdmin(admin.ModelAdmin):
                 "english_title",
                 "slug",
                 "author",
-                "translator",
                 "publisher",
                 "categories",
+                "creator",
             )
         }),
+
+        ("اطلاعات تجاری", {
+            "fields": (
+                "sku",
+                "product_type",
+                "price",
+                "discount_price",
+                "stock",
+                "status",
+                "is_active",
+            )
+        }),
+
         ("فایل و تصویر", {
             "fields": (
                 "image",
@@ -149,17 +171,20 @@ class BookAdmin(admin.ModelAdmin):
                 "file",
             )
         }),
-        ("وضعیت و تاریخ‌ها", {
+
+        ("تاریخ‌ها", {
             "fields": (
-                "available",
                 "published_date",
                 "created_at",
+                "updated_at",
             )
         }),
+
         ("توضیحات", {
             "fields": ("description",),
             "classes": ("collapse",)
         }),
+
         ("آمار", {
             "fields": (
                 "sell_count",
@@ -167,10 +192,19 @@ class BookAdmin(admin.ModelAdmin):
                 "download_count",
             ),
         }),
-        ("سایر", {
-            "fields": ("creator",),
-        }),
     )
+
+    # -------------------------
+    # Custom Display Methods
+    # -------------------------
+
+    @admin.display(description="قیمت نهایی")
+    def final_price_display(self, obj):
+        return obj.final_price
+
+    @admin.display(boolean=True, description="موجود")
+    def is_in_stock_display(self, obj):
+        return obj.stock > 0
 
     def cover_tag(self, obj):
         if obj.image:

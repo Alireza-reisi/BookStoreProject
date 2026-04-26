@@ -142,6 +142,20 @@ class Publisher(models.Model):
 
 
 class Book(models.Model):
+    PRODUCT_TYPE_CHOICES = (
+        ("physical", "فیزیکی"),
+        ("digital", "دیجیتال"),
+    )
+
+    STATUS_CHOICES = (
+        ("draft", "پیش‌نویس"),
+        ("published", "منتشر شده"),
+    )
+
+    # -------------------
+    # Basic Info
+    # -------------------
+
     title = models.CharField(max_length=150, verbose_name="عنوان کتاب",
                              error_messages={
                                  "blank": "این فیلد اجباری است."
@@ -150,69 +164,145 @@ class Book(models.Model):
                                      error_messages={
                                          "blank": "این فیلد اجباری است."
                                      })
-    author = models.ForeignKey(
-        Author,
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name="books",
-        verbose_name="نویسنده"
-    )
-    translator = models.CharField(max_length=150, blank=True, null=True, verbose_name="مترجم")
-    publisher = models.ForeignKey(
-        Publisher,
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name="books",
-        verbose_name="ناشر"
-    )
-    published_date = models.DateField(verbose_name="تاریخ انتشار", blank=True, null=True)
-    created_at = models.DateTimeField(auto_now_add=True, verbose_name="تاریخ ثبت")
-    available = models.BooleanField(default=True, verbose_name="موجود")
-    image = models.ImageField(
-        upload_to='img/books',
-        default='assets/img/default.jpg',
-        verbose_name="تصویر کتاب"
-    )
-    file = models.FileField(
-        upload_to='file/books',
-        default='assets/file/book.pdf',
-        verbose_name="فایل کتاب"
-    )
-    categories = models.ManyToManyField(
-        Category,
-        related_name='books',
-        verbose_name="دسته‌بندی‌ها"
-    )
+
+    slug = models.SlugField(unique=True, blank=True)
+
     description = models.TextField(blank=True, null=True, verbose_name="توضیحات")
 
-    sell_count = models.PositiveIntegerField(default=0, verbose_name="تعداد فروش")
-    view_count = models.PositiveIntegerField(default=0, verbose_name="تعداد بازدید")
-    download_count = models.PositiveIntegerField(default=0, verbose_name="تعداد دانلود")
+    image = models.ImageField(
+        upload_to="img/books/",
+        default="assets/img/default.jpg",
+        verbose_name="تصویر کتاب"
+    )
 
-    slug = models.SlugField(unique=True, blank=True,
-                            error_messages={
-                                'unique': "این اسلاگ قبلاً ثبت شده است. یک اسلاگ دیگر انتخاب کنید.", })
+    file = models.FileField(
+        upload_to="file/books/",
+        blank=True,
+        null=True,
+        verbose_name="فایل کتاب (برای نسخه دیجیتال)"
+    )
+
+    # -------------------
+    # Commercial Info
+    # -------------------
+
+    price = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        verbose_name="قیمت"
+    )
+
+    discount_price = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        blank=True,
+        null=True,
+        verbose_name="قیمت با تخفیف"
+    )
+
+    stock = models.PositiveIntegerField(
+        default=0,
+        verbose_name="موجودی انبار"
+    )
+
+    product_type = models.CharField(
+        max_length=20,
+        choices=PRODUCT_TYPE_CHOICES,
+        default="physical",
+        verbose_name="نوع محصول"
+    )
+
+    sku = models.CharField(
+        max_length=50,
+        unique=True,
+        verbose_name="شناسه انبار (SKU)"
+    )
+
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default="draft",
+        verbose_name="وضعیت انتشار"
+    )
+
+    is_active = models.BooleanField(default=True, verbose_name="فعال")
+
+    # -------------------
+    # Relations
+    # -------------------
+
+    author = models.ForeignKey(
+        "Author",
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name="books"
+    )
+
+    publisher = models.ForeignKey(
+        "Publisher",
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name="books"
+    )
+
+    categories = models.ManyToManyField(
+        "Category",
+        related_name="books"
+    )
 
     creator = models.ForeignKey(
         User,
         on_delete=models.SET_NULL,
         null=True,
-        related_name="created_books",
-        verbose_name="ایجاد کننده"
+        related_name="created_books"
     )
 
+    # -------------------
+    # Stats
+    # -------------------
+
+    sell_count = models.PositiveIntegerField(default=0)
+    view_count = models.PositiveIntegerField(default=0)
+    download_count = models.PositiveIntegerField(default=0)
+
+    # -------------------
+    # Dates
+    # -------------------
+
+    published_date = models.DateField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    # -------------------
+    # Meta
+    # -------------------
+
     class Meta:
+        ordering = ["-created_at"]
         verbose_name = "کتاب"
         verbose_name_plural = "کتاب‌ها"
-        ordering = ["-created_at"]
+
+    # -------------------
+    # Methods
+    # -------------------
 
     def __str__(self):
         return self.title
 
     def get_absolute_url(self):
-        return reverse('Bookmanager:book_page', args=[self.slug])
+        return reverse("Bookmanager:book_page", args=[self.slug])
+
+    @property
+    def final_price(self):
+        """
+        قیمت نهایی بعد از تخفیف
+        """
+        if self.discount_price:
+            return self.discount_price
+        return self.price
+
+    def is_in_stock(self):
+        return self.stock > 0
 
     def save(self, *args, **kwargs):
         if not self.slug:
