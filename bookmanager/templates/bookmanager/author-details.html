@@ -1,0 +1,391 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+{{ author.name }}
+{% endblock %}
+
+{% block description %}
+{% endblock %}
+
+{% block content %}
+<main>
+
+    <div class="breadcrumb-items">
+        <div class="row">
+            <ul class="breadcrumb">
+                <li>
+                    <a href="{% url 'pages:home' %}" class="breadcrumb-link">صفحه اصلی</a>
+                </li>
+                <li class="chevron"><span class="fa fa-chevron-left"></span></li>
+                <li>
+                <li>
+                    <a href="author.html" class="breadcrumb-link">نویسندگان</a>
+                </li>
+                <li class="chevron"><span class="fa fa-chevron-left"></span></li>
+                <li>
+                    <span class="breadcrumb-active">{{ author.name }}</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="single-author">
+        <div class="container">
+            <div class="row">
+                <div class="col-xl-12">
+
+                    <div class="single-author-row d-flex align-items-center mb-0">
+                        <div class="single-author-img">
+                            <img src="{{ author.photo.url }}" alt="{{ author.english_name }}">
+                        </div>
+                        <div class="author-caption">
+                            <div class="author-title">
+                                <h1>آشنایی با نویسنده</h1>
+                            </div>
+                            <div class="meta">
+                                <p>نویسنده: <span>{{ author.name }}</span><span>({{ author.english_name }})</span></p>
+                                <p>زمینه نویسندگی:<span>{{ author.get_writing_field_display }}</span></p>
+                                <p class="job">پیشه:
+                                    <span>{{ author.profession }}</span>
+                                </p>
+                                <p>ملیت:<span>{{ author.get_nationality_display }}</span></p>
+                            </div>
+                            <div class="author-btn">
+                                <a href="#books" class="white-btn mr-10">کتاب های نویسنده</a>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <section class="our-client section-padding best-selling">
+        <div class="container">
+            <div class="row">
+                <div class="offset-xl-1 col-xl-10">
+                    <div class="nav-button f-right">
+                        <nav>
+                            <div class="nav nav-tabs " id="nav-tab" role="tablist">
+                                <a class="nav-link active" id="nav-one-tab" data-bs-toggle="tab" href="#nav-one"
+                                   role="tab" aria-controls="nav-one" aria-selected="true">بیوگرافی نویسنده</a>
+                                <a class="nav-link" id="nav-four-tab" data-bs-toggle="tab" href="#nav-four"
+                                   role="tab" aria-controls="nav-four" aria-selected="false">نظرات</a>
+                            </div>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="tab-content" id="nav-tabContent">
+                <div class="tab-pane fade show active" id="nav-one" role="tabpanel" aria-labelledby="nav-one-tab">
+
+                    <div class="row">
+                        <div class="desc-tab offset-xl-1 col-lg-9">
+                            <p> {{ author.biography }} </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="nav-four" role="tabpanel" aria-labelledby="nav-four-tab">
+
+                    <div class="row">
+                        <div class="comment-tab offset-xl-1 col-lg-9">
+                            <div class="container bootdey">
+                                <div class="col-md-12 bootstrap snippets">
+                                    <form method="post">
+                                        {% csrf_token %}
+                                        <div class="panel">
+                                            {% if form.non_field_errors %}
+                                            <div class="alert alert-danger">
+                                                {{ form.non_field_errors }}
+                                            </div>
+                                            {% endif %}
+                                            <div class="panel-body">
+                                                {% if form.text.errors %}
+                                                <div class="alert alert-danger">
+                                                    {{ form.text.errors }}
+                                                </div>
+                                                {% endif %}
+                                                {{ form.text }}
+                                                <div class="mar-top captcha-container">
+                                                    {{ form.captcha }}
+                                                </div>
+
+
+                                                <div class="mar-top clearfix">
+                                                    <button class="btn btn-sm btn-primary pull-right" type="submit">
+                                                        <i class="fa fa-pencil fa-fw"></i> ارسال نظر
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </form>
+                                    <div id="comments-wrapper" class="panel">
+                                        {% include "bookmanager/partials/comments_list.html" %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="author-books section-bg">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-xl-7 col-lg-8">
+                    <div class="section-tittle text-center mb-55" id="books">
+                        <h2>کتاب های این نویسنده</h2>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xl-12">
+                        <div class="author-books-box">
+                            <div class="properties pb-20">
+                                <div class="properties-card">
+                                    <div class="properties-img">
+                                        <a href="book-details.html"><img src="img/book/author-book-1.jpg"
+                                                                         alt=""></a>
+                                    </div>
+                                    <div class="properties-caption">
+                                        <h3><a href="book-details.html">اعتماد به نفس</a></h3>
+                                        <div class="properties-footer">
+                                            <div class="review">
+                                                <div class="rating">
+                                                    <i class="fas fa-star"></i>
+                                                    <i class="fas fa-star"></i>
+                                                    <i class="fas fa-star"></i>
+                                                    <i class="fas fa-star"></i>
+                                                    <i class="fas fa-star-half-alt"></i>
+                                                </div>
+                                                <p>(<span>12</span> نظر)</p>
+                                            </div>
+                                            <div class="price">
+                                                <p>19.900<span>تومان</span></p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="properties pb-20">
+                                <div class="properties-card">
+                                    <div class="properties-img">
+                                        <a href="book-details.html"><img src="img/book/author-book-2.jpg"
+                                                                         alt=""></a>
+                                    </div>
+                                    <div class="properties-caption">
+                                        <h3><a href="book-details.html">چگونه به اینجا رسیدم؟</a></h3>
+                                        <div class="properties-footer">
+                                            <div class="review">
+                                                <div class="rating">
+                                                    <i class="fas fa-star"></i>
+                                                    <i class="fas fa-star"></i>
+                                                    <i class="fas fa-star"></i>
+                                                    <i class="fas fa-star"></i>
+                                                    <i class="fas fa-star-half-alt"></i>
+                                                </div>
+                                                <p>(<span>12</span> نظر)</p>
+                                            </div>
+                                            <div class="price">
+                                                <p>59.900<span>تومان</span></p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="properties pb-20">
+                                <div class="properties-card">
+                                    <div class="properties-img">
+                                        <a href="book-details.html"><img src="img/book/author-book-3.jpg"
+                                                                         alt=""></a>
+                                    </div>
+                                    <div class="properties-caption">
+                                        <h3><a href="book-details.html">رازهایی درباره زنان</a></h3>
+                                        <div class="properties-footer">
+                                            <div class="review">
+                                                <div class="rating">
+                                                    <i class="fas fa-star"></i>
+                                                    <i class="fas fa-star"></i>
+                                                    <i class="fas fa-star"></i>
+                                                    <i class="fas fa-star"></i>
+                                                    <i class="fas fa-star-half-alt"></i>
+                                                </div>
+                                                <p>(<span>12</span> نظر)</p>
+                                            </div>
+                                            <div class="price">
+                                                <p>72.000<span>تومان</span></p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="properties pb-20">
+                                <div class="properties-card">
+                                    <div class="properties-img">
+                                        <a href="book-details.html"><img src="img/book/author-book-4.jpg"
+                                                                         alt=""></a>
+                                    </div>
+                                    <div class="properties-caption">
+                                        <h3><a href="book-details.html">اعتماد به نفس</a></h3>
+                                        <div class="properties-footer">
+                                            <div class="review">
+                                                <div class="rating">
+                                                    <i class="fas fa-star"></i>
+                                                    <i class="fas fa-star"></i>
+                                                    <i class="fas fa-star"></i>
+                                                    <i class="fas fa-star"></i>
+                                                    <i class="fas fa-star-half-alt"></i>
+                                                </div>
+                                                <p>(<span>12</span> نظر)</p>
+                                            </div>
+                                            <div class="price">
+                                                <p>69.000<span>تومان</span></p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="properties pb-20">
+                                <div class="properties-card">
+                                    <div class="properties-img">
+                                        <a href="book-details.html"><img src="img/book/author-book-5.jpg"
+                                                                         alt=""></a>
+                                    </div>
+                                    <div class="properties-caption">
+                                        <h3><a href="book-details.html">قوانین روابط موفق</a></h3>
+                                        <div class="properties-footer">
+                                            <div class="review">
+                                                <div class="rating">
+                                                    <i class="fas fa-star"></i>
+                                                    <i class="fas fa-star"></i>
+                                                    <i class="fas fa-star"></i>
+                                                    <i class="fas fa-star"></i>
+                                                    <i class="fas fa-star-half-alt"></i>
+                                                </div>
+                                                <p>(<span>12</span> نظر)</p>
+                                            </div>
+                                            <div class="price">
+                                                <p>42.000<span>تومان</span></p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="properties pb-20">
+                                <div class="properties-card">
+                                    <div class="properties-img">
+                                        <a href="book-details.html"><img src="img/book/author-book-6.jpg"
+                                                                         alt=""></a>
+                                    </div>
+                                    <div class="properties-caption">
+                                        <h3><a href="book-details.html">لحظه های ناب و حقیقی</a></h3>
+                                        <div class="properties-footer">
+                                            <div class="review">
+                                                <div class="rating">
+                                                    <i class="fas fa-star"></i>
+                                                    <i class="fas fa-star"></i>
+                                                    <i class="fas fa-star"></i>
+                                                    <i class="fas fa-star"></i>
+                                                    <i class="fas fa-star-half-alt"></i>
+                                                </div>
+                                                <p>(<span>12</span> نظر)</p>
+                                            </div>
+                                            <div class="price">
+                                                <p>45.000<span>تومان</span></p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="properties pb-20">
+                                <div class="properties-card">
+                                    <div class="properties-img">
+                                        <a href="book-details.html"><img src="img/book/author-book-7.jpg"
+                                                                         alt=""></a>
+                                    </div>
+                                    <div class="properties-caption">
+                                        <h3><a href="book-details.html">روابط رمانتیک</a></h3>
+                                        <div class="properties-footer">
+                                            <div class="review">
+                                                <div class="rating">
+                                                    <i class="fas fa-star"></i>
+                                                    <i class="fas fa-star"></i>
+                                                    <i class="fas fa-star"></i>
+                                                    <i class="fas fa-star"></i>
+                                                    <i class="fas fa-star-half-alt"></i>
+                                                </div>
+                                                <p>(<span>12</span> نظر)</p>
+                                            </div>
+                                            <div class="price">
+                                                <p>35.900<span>تومان</span></p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <section class="subscribe-area">
+        <div class="container">
+            <div class="subscribe-caption text-center subscribe-padding section-img2-bg"
+                 data-background="img/bg/newsletter-bg.jpg">
+                <div class="row justify-content-center">
+                    <div class="col-xl-6 col-lg-8 col-md-9">
+                        <h3>خبرنامه کابانا</h3>
+                        <p>هر ماه یک کتاب الکترونیکی رایگان به ایمیل اعضای خبرنامه ارسال می گردد.</p>
+                        <form action="#">
+                            <input type="text" placeholder="ایمیل">
+                            <button class="subscribe-btn">عضویت در خبرنامه</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+</main>
+<script>
+
+    document.addEventListener("click", function (e) {
+
+        if (e.target.classList.contains("ajax-page")) {
+
+            e.preventDefault()
+
+            let url = e.target.getAttribute("href")
+
+            fetch(url, {
+                headers: {
+                    "X-Requested-With": "XMLHttpRequest"
+                }
+            })
+                .then(res => res.json())
+                .then(data => {
+
+                    document.getElementById("comments-wrapper").innerHTML = data.html
+
+                    document.getElementById("comments-wrapper")
+                        .scrollIntoView({behavior: "smooth"})
+
+                })
+
+        }
+
+    })
+
+</script>
+
+{% endblock %}

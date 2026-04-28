@@ -4,6 +4,7 @@ from django.utils.text import slugify
 from django.urls import reverse
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
+from django_countries.fields import CountryField
 
 
 class Comment(models.Model):
@@ -36,16 +37,108 @@ class Comment(models.Model):
     def __str__(self):
         return f"Comment by {self.user} on {self.content_object}"
 
+    @property
+    def likes_count(self):
+        return self.reactions.filter(reaction='like').count()
+
+    @property
+    def dislikes_count(self):
+        return self.reactions.filter(reaction='dislike').count()
+
+
+class CommentReaction(models.Model):
+    REACTION_CHOICES = [
+        ('like', 'Like'),
+        ('dislike', 'Dislike'),
+    ]
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    comment = models.ForeignKey("Comment", on_delete=models.CASCADE, related_name="reactions")
+    reaction = models.CharField(max_length=10, choices=REACTION_CHOICES)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'comment')
+
 
 class Author(models.Model):
-    name = models.CharField(max_length=150, verbose_name="نام نویسنده",
-                            error_messages={
-                                "blank": "این فیلد اجباری است."
-                            })
-    english_name = models.CharField(max_length=150, verbose_name="نام انگلیسی",
-                                    error_messages={
-                                        "blank": "این فیلد اجباری است."
-                                    })
+    class WritingField(models.TextChoices):
+        PHILOSOPHICAL = "philosophical", "فلسفی"
+        PSYCHOLOGICAL = "psychological", "روانشناختی"
+        MAGICAL_REALISM = "magical_realism", "رئالیسم جادویی"
+        CRIME_MYSTERY = "crime_mystery", "معمایی و جنایی"
+        ROMANCE_SOCIAL = "romance_social", "عاشقانه / اجتماعی"
+
+        # ادبیات داستانی و رمان‌ها
+        LITERARY_FICTION = "literary_fiction", "ادبیات داستانی"
+        SOCIAL_NOVEL = "social_novel", "رمان اجتماعی"
+        ROMANCE = "romance", "رمان عاشقانه"
+        PHILOSOPHICAL_NOVEL = "philosophical_novel", "رمان فلسفی"
+        POLITICAL_FICTION = "political_fiction", "ادبیات سیاسی"
+        HISTORICAL_FICTION = "historical_fiction", "داستان تاریخی"
+        REALISM = "realism", "رئالیسم"
+        SOCIAL_REALISM = "social_realism", "رئالیسم اجتماعی"
+        MAGIC_REALISM = "magic_realism", "رئالیسم جادویی"
+        MODERNISM = "modernism", "مدرنیسم"
+        POSTMODERN = "postmodern", "پست‌مدرنیسم"
+        SURREAL = "surreal", "سوررئال"
+        SHORT_STORY = "short_story", "داستان کوتاه"
+
+        # شعر
+        POETRY = "poetry", "شعر"
+        MODERN_POETRY = "modern_poetry", "شعر معاصر"
+        CLASSIC_POETRY = "classic_poetry", "شعر کلاسیک"
+
+        # ژانرهای تخیلی و ماجراجویی
+        FANTASY = "fantasy", "فانتزی"
+        EPIC_FANTASY = "epic_fantasy", "فانتزی حماسی"
+        SCIENCE_FICTION = "sci_fi", "علمی‌تخیلی"
+        ADVENTURE = "adventure", "ماجراجویی"
+        DYSTOPIAN = "dystopian", "دیستوپیا / پادآرمان‌شهری"
+
+        # ژانرهای جنایی و هیجان‌انگیز
+        CRIME = "crime", "جنایی"
+        MYSTERY = "mystery", "معمایی"
+        THRILLER = "thriller", "هیجان‌انگیز"
+        DETECTIVE = "detective", "کارآگاهی"
+
+        # ژانرهای فلسفی، فکری و عمیق
+        PHILOSOPHY = "philosophy", "فلسفه"
+        PSYCHOLOGY = "psychology", "روانشناسی"
+        EXISTENTIAL = "existential", "اگزیستانسیالیسم"
+        SOCIOLOGY = "sociology", "جامعه‌شناسی"
+
+        # ژانرهای کودک و نوجوان
+        CHILDREN = "children", "کودک"
+        YOUNG_ADULT = "young_adult", "نوجوان"
+
+        # ژانرهای مستند، روزنامه‌نگاری، زندگی‌نامه
+        JOURNALISM = "journalism", "روزنامه‌نگاری"
+        BIOGRAPHY = "biography", "زندگی‌نامه"
+        MEMOIR = "memoir", "خاطره‌نویسی"
+        REPORTAGE = "reportage", "گزارش‌نویسی"
+
+        # ژانرهای مذهبی، اسطوره‌ای، تاریخی
+        MYTHOLOGY = "mythology", "اسطوره"
+        RELIGION = "religion", "دین"
+        HISTORY = "history", "تاریخ"
+
+        # ژانرهای موضوعی و کم‌یاب‌تر
+        WAR_LITERATURE = "war", "ادبیات جنگ"
+        SOCIAL_CRITICISM = "social_criticism", "نقد اجتماعی"
+        SYMBOLISM = "symbolism", "سمبولیسم"
+        HUMANITIES = "humanities", "انسانیات"
+
+    name = models.CharField(
+        max_length=150,
+        verbose_name="نام نویسنده",
+        error_messages={"blank": "این فیلد اجباری است."}
+    )
+
+    english_name = models.CharField(
+        max_length=150,
+        verbose_name="نام انگلیسی",
+        error_messages={"blank": "این فیلد اجباری است."}
+    )
 
     photo = models.ImageField(
         upload_to="img/authors",
@@ -53,19 +146,41 @@ class Author(models.Model):
         null=True,
         verbose_name="عکس نویسنده"
     )
-    website = models.URLField(
-        blank=True,
-        null=True,
-        verbose_name="وب‌سایت"
-    )
+
     biography = models.TextField(
         blank=True,
         null=True,
         verbose_name="بیوگرافی"
     )
 
-    slug = models.SlugField(unique=True, blank=True,
-                            error_messages={'unique': "این اسلاگ قبلاً ثبت شده است. یک اسلاگ دیگر انتخاب کنید.", })
+    writing_field = models.CharField(
+        max_length=50,
+        choices=WritingField.choices,
+        verbose_name="زمینه نویسندگی",
+        blank=True,
+        null=True
+    )
+
+    profession = models.CharField(
+        max_length=50,
+        verbose_name="پیشه",
+        blank=True,
+        null=True
+    )
+
+    nationality = CountryField(
+        verbose_name="ملیت",
+        blank=True,
+        null=True
+    )
+
+    slug = models.SlugField(
+        unique=True,
+        blank=True,
+        error_messages={
+            "unique": "این اسلاگ قبلاً ثبت شده است. یک اسلاگ دیگر انتخاب کنید."
+        }
+    )
 
     comments = GenericRelation(Comment)
 
@@ -81,14 +196,18 @@ class Author(models.Model):
         return reverse("Bookmanager:author_page", args=[self.slug])
 
     def save(self, *args, **kwargs):
+        # ساخت اسلاگ یکتا
         if not self.slug:
             base_slug = slugify(self.english_name)
             slug = base_slug
             counter = 1
+
             while Author.objects.filter(slug=slug).exists():
                 slug = f"{base_slug}-{counter}"
                 counter += 1
+
             self.slug = slug
+
         super().save(*args, **kwargs)
 
 

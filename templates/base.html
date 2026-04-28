@@ -2,26 +2,31 @@
 <!doctype html>
 <html class="no-js" lang="en">
 
-    <head>
-        {% include 'includes/header-links.html' %}
-    </head>
+<head>
+    <meta name="description" content="{% block description %}{% endblock %}">
+    {% include 'includes/header-links.html' %}
+    <title>
+        {% block title %}
+        {% endblock %}
+    </title>
+</head>
 
 
-    <header>
-        {% include 'includes/header.html' %}
-    </header>
+<header>
+    {% include 'includes/header.html' %}
+</header>
 
 
-    <body>
-        {% block content %} {% endblock %}
+<body>
+{% block content %} {% endblock %}
 
-        <footer>
-            {% include 'includes/footer.html' %}
-        </footer>
-        <div id="back-top">
-            <a title="Go to Top" href="#"> <i class="fas fa-level-up-alt"></i></a>
-        </div>
-        {% include 'includes/footer-links.html' %}
-    </body>
+<footer>
+    {% include 'includes/footer.html' %}
+</footer>
+<div id="back-top">
+    <a title="Go to Top" href="#"> <i class="fas fa-level-up-alt"></i></a>
+</div>
+{% include 'includes/footer-links.html' %}
+</body>
 
 </html>

@@ -32,6 +32,13 @@ INSTALLED_APPS = [
     # simple-captcha
     "captcha",
 
+    # comment time
+    "django.contrib.humanize",
+
+    # authur nationality
+    "django_countries",
+
+
 ]
 
 MIDDLEWARE = [

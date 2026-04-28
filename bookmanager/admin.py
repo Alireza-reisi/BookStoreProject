@@ -1,12 +1,12 @@
 from django.contrib import admin
 from django.utils.html import format_html
 from .forms import CommentAdminForm
-from .models import Category, Publisher, Book, Comment, Author
+from .models import Category, Publisher, Book, Comment, Author, CommentReaction
 
 
 @admin.register(Author)
 class AuthorAdmin(admin.ModelAdmin):
-    list_display = ("name", "english_name", "photo_tag", "slug")
+    list_display = ("name", "english_name", "photo_tag", "slug", "writing_field", "profession", "nationality")
     search_fields = ("name", "english_name")
     prepopulated_fields = {"slug": ("english_name",)}
     ordering = ("name",)
@@ -16,7 +16,10 @@ class AuthorAdmin(admin.ModelAdmin):
             "fields": ("name", "english_name", "slug")
         }),
         ("جزئیات", {
-            "fields": ("photo", "website", "biography")
+            "fields": ("photo", "biography")
+        }),
+        ("زمینه کاری", {
+            "fields": ("writing_field", "profession", "nationality")
         }),
     )
 
@@ -222,6 +225,13 @@ class BookAdmin(admin.ModelAdmin):
         super().save_model(request, obj, form, change)
 
 
+class CommentReactionInline(admin.TabularInline):
+    model = CommentReaction
+    extra = 0
+    readonly_fields = ("user", "reaction", "created_at")
+    can_delete = False
+
+
 @admin.register(Comment)
 class CommentAdmin(admin.ModelAdmin):
     form = CommentAdminForm
@@ -231,11 +241,13 @@ class CommentAdmin(admin.ModelAdmin):
         "content_type",
         "user",
         "short_text",
+        "likes",
+        "dislikes",
         "is_active",
         "created_at",
     )
 
-    readonly_fields = ("created_at", "content_object")
+    readonly_fields = ("created_at", "content_object", "likes", "dislikes")
 
     fieldsets = (
         ("ارتباط", {
@@ -252,6 +264,13 @@ class CommentAdmin(admin.ModelAdmin):
             )
         }),
 
+        ("آمار واکنش", {
+            "fields": (
+                "likes",
+                "dislikes",
+            )
+        }),
+
         ("وضعیت", {
             "fields": (
                 "is_active",
@@ -265,3 +284,13 @@ class CommentAdmin(admin.ModelAdmin):
         return (obj.text[:50] + "…") if len(obj.text) > 50 else obj.text
 
     short_text.short_description = "خلاصه نظر"
+
+    def likes(self, obj):
+        return obj.reactions.filter(reaction="like").count()
+
+    likes.short_description = "تعداد لایک"
+
+    def dislikes(self, obj):
+        return obj.reactions.filter(reaction="dislike").count()
+
+    dislikes.short_description = "تعداد دیسلایک"
