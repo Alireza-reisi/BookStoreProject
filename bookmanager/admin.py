@@ -98,7 +98,6 @@ class BookAdmin(admin.ModelAdmin):
         "publisher",
         "product_type",
         "price",
-        "discount_price",
         "final_price_display",
         "stock",
         "is_in_stock_display",
@@ -110,10 +109,12 @@ class BookAdmin(admin.ModelAdmin):
 
     list_filter = (
         "product_type",
+        "format",
         "status",
         "is_active",
         "publisher",
         "categories",
+        "language",
         "created_at",
     )
 
@@ -124,24 +125,37 @@ class BookAdmin(admin.ModelAdmin):
         "publisher__name",
         "publisher__english_name",
         "sku",
+        "isbn",
         "slug",
     )
 
-    prepopulated_fields = {"slug": ("english_title",)}
-
+    list_select_related = ("author", "publisher")
     filter_horizontal = ("categories",)
 
+    ordering = ("-created_at",)
+    list_per_page = 20
+
+    # -------------------------
+    # Auto Slug
+    # -------------------------
+    prepopulated_fields = {"slug": ("english_title",)}
+
+    # -------------------------
+    # Readonly Fields
+    # -------------------------
     readonly_fields = (
         "sell_count",
         "view_count",
         "download_count",
+        "average_rating",
         "created_at",
         "updated_at",
         "cover_tag",
     )
 
-    ordering = ("-created_at",)
-
+    # -------------------------
+    # Fieldsets
+    # -------------------------
     fieldsets = (
         ("اطلاعات اصلی", {
             "fields": (
@@ -149,6 +163,7 @@ class BookAdmin(admin.ModelAdmin):
                 "english_title",
                 "slug",
                 "author",
+                "translator",
                 "publisher",
                 "categories",
                 "creator",
@@ -159,11 +174,20 @@ class BookAdmin(admin.ModelAdmin):
             "fields": (
                 "sku",
                 "product_type",
+                "format",
                 "price",
-                "discount_price",
                 "stock",
                 "status",
                 "is_active",
+            )
+        }),
+
+        ("اطلاعات کتاب", {
+            "fields": (
+                "isbn",
+                "page_count",
+                "language",
+                "published_date",
             )
         }),
 
@@ -172,14 +196,6 @@ class BookAdmin(admin.ModelAdmin):
                 "image",
                 "cover_tag",
                 "file",
-            )
-        }),
-
-        ("تاریخ‌ها", {
-            "fields": (
-                "published_date",
-                "created_at",
-                "updated_at",
             )
         }),
 
@@ -193,13 +209,18 @@ class BookAdmin(admin.ModelAdmin):
                 "sell_count",
                 "view_count",
                 "download_count",
+                "average_rating",
+            ),
+            "classes": ("collapse",)
+        }),
+
+        ("تاریخ‌ها", {
+            "fields": (
+                "created_at",
+                "updated_at",
             ),
         }),
     )
-
-    # -------------------------
-    # Custom Display Methods
-    # -------------------------
 
     @admin.display(description="قیمت نهایی")
     def final_price_display(self, obj):
@@ -207,17 +228,17 @@ class BookAdmin(admin.ModelAdmin):
 
     @admin.display(boolean=True, description="موجود")
     def is_in_stock_display(self, obj):
-        return obj.stock > 0
+        return obj.is_in_stock()
 
+    @admin.display(description="کاور")
     def cover_tag(self, obj):
         if obj.image:
             return format_html(
-                '<img src="{}" width="60" style="border-radius:4px;" />',
+                '<img src="{}" width="60" style="border-radius:6px;" />',
                 obj.image.url
             )
         return "—"
 
-    cover_tag.short_description = "کاور"
 
     def save_model(self, request, obj, form, change):
         if not obj.creator:

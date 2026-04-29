@@ -36,6 +36,103 @@ def ReactToCommentView(request, comment_id, reaction_type):
     return redirect(request.META.get("HTTP_REFERER", "/"))
 
 
+class BookDetailView(DetailView):
+    model = Book
+    template_name = "bookmanager/book-details.html"
+    context_object_name = "book"
+
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+
+        context = self.get_context_data()
+
+        # اگر درخواست AJAX بود فقط کامنت‌ها را برگردان
+        if request.headers.get("x-requested-with") == "XMLHttpRequest":
+            html = render_to_string(
+                "bookmanager/partials/comments_list.html",
+                context,
+                request=request
+            )
+            return JsonResponse({"html": html})
+
+        return self.render_to_response(context)
+
+    def get_queryset(self):
+        return Book.objects.prefetch_related(
+            Prefetch(
+                "comments",
+                queryset=Comment.objects.filter(is_active=True)
+                .select_related("user")
+                .order_by("-created_at"),
+                to_attr="approved_comments"
+            ),
+        )
+
+    def get_object(self, queryset=None):
+        slug = self.kwargs.get("slug")
+        logger.info(f"Fetching book detail page for slug: {slug}")
+
+        return get_object_or_404(
+            queryset or self.get_queryset(),
+            slug=slug
+        )
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        comments = getattr(self.object, "approved_comments", [])
+
+        paginator = Paginator(comments, 7)
+        page_number = self.request.GET.get("page")
+        comments_page = paginator.get_page(page_number)
+
+        related_books = (
+            Book.objects.filter(categories__in=self.object.categories.all())
+            .exclude(id=self.object.id)
+            .annotate(comments_count=Count("comments", filter=Q(comments__is_active=True)))
+            .distinct()
+            .order_by("-sell_count")[:8]
+        )
+
+        context.update({
+            "comments_page": comments_page,
+            "form": CommentForm(),
+            "related_books": related_books,
+
+        })
+
+        logger.debug(f"Book '{self.object}' loaded with {len(comments)} approved comments.")
+
+        return context
+
+    def post(self, request, *args, **kwargs):
+        """ثبت نظر جدید از کاربر"""
+        self.object = self.get_object()
+        form = CommentForm(
+            request.POST,
+            initial={"request": request, "content_object": self.object}
+        )
+
+        if form.is_valid():
+            comment = form.save(commit=False)
+            comment.user = request.user if request.user.is_authenticated else None
+            comment.content_object = self.object
+            comment.ip_address = request.META.get("REMOTE_ADDR")
+            comment.save()
+
+            messages.success(
+                request,
+                "نظر شما با موفقیت ثبت شد و پس از بررسی نمایش داده خواهد شد."
+            )
+
+            return redirect(reverse("bookmanager:book_detail", kwargs={"slug": self.object.slug}))
+
+        logger.warning(f"Comment form errors: {form.errors}")
+        context = self.get_context_data()
+        context["form"] = form
+        return self.render_to_response(context)
+
+
 class AuthorListView(ListView):
     model = Author
     template_name = "bookmanager/author_list.html"
@@ -194,7 +291,7 @@ class AuthorDetailView(DetailView):
             return redirect(
                 reverse("bookmanager:author_detail", kwargs={"slug": self.object.slug})
             )
-        print(f" error : {form.errors}")
+        logger.warning(f"Comment form errors: {form.errors}")
         context = self.get_context_data()
         context["form"] = form
         return self.render_to_response(context)

@@ -398,7 +398,7 @@ BOOKINO
                             <li>
                                 <img src="{{ author.photo.url }}" alt="{{ author.english_name }}">
                                 <p>{{ author.name }}</p>
-                                <a href="{% url 'bookmanager:author_detail' author.slug %}"><i class="fa-solid fa-circle-chevron-left"></i></a>
+                                <a href="{{ author.get_absolute_url }}"><i class="fa-solid fa-circle-chevron-left"></i></a>
                             </li>
                             {% endfor %}
                         </ul>

@@ -17,7 +17,7 @@
 
     <div class="author_details">
         <a class="d-inline-block"
-           href="{% url 'bookmanager:author_detail' author.slug %}">
+           href="{{ author.get_absolute_url }}">
             <h2 class="author-head" style="color: #2d2d2d;">
                 {{ author.name }}
             </h2>

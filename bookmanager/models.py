@@ -5,6 +5,7 @@ from django.urls import reverse
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
 from django_countries.fields import CountryField
+from django.core.validators import MinValueValidator, MaxValueValidator
 
 
 class Comment(models.Model):
@@ -193,7 +194,7 @@ class Author(models.Model):
         return self.name
 
     def get_absolute_url(self):
-        return reverse("Bookmanager:author_page", args=[self.slug])
+        return reverse("bookmanager:author_page", args=[self.slug])
 
     def save(self, *args, **kwargs):
         # ساخت اسلاگ یکتا
@@ -209,6 +210,9 @@ class Author(models.Model):
             self.slug = slug
 
         super().save(*args, **kwargs)
+
+    def get_absolute_url(self):
+        return reverse("bookmanager:author_detail", args=[self.slug])
 
 
 class Category(models.Model):
@@ -233,8 +237,8 @@ class Category(models.Model):
         verbose_name_plural = "دسته‌بندی‌ها"
         ordering = ["name"]
 
-    def get_absolute_url(self):
-        return reverse('Bookmanager:category_page', args=[self.slug])
+    # def get_absolute_url(self):
+        # return reverse('bookmanager:category_page', args=[self.slug])
 
     def save(self, *args, **kwargs):
         if not self.slug:
@@ -277,8 +281,8 @@ class Publisher(models.Model):
     def __str__(self):
         return self.name
 
-    def get_absolute_url(self):
-        return reverse('Bookmanager:publisher_page', args=[self.slug])
+    # def get_absolute_url(self):
+    #     return reverse('bookmanager:publisher_detail', args=[self.slug])
 
     def save(self, *args, **kwargs):
         if not self.slug:
@@ -306,9 +310,12 @@ class Book(models.Model):
         ("published", "منتشر شده"),
     )
 
-    # -------------------
-    # Basic Info
-    # -------------------
+    FORMAT_CHOICES = (
+        ("paperback", "شومیز"),
+        ("hardcover", "جلد سخت"),
+        ("ebook", "الکترونیکی"),
+        ("audio", "صوتی"),
+    )
 
     title = models.CharField(max_length=150, verbose_name="عنوان کتاب",
                              error_messages={
@@ -320,6 +327,8 @@ class Book(models.Model):
                                      })
 
     slug = models.SlugField(unique=True, blank=True)
+
+    translator = models.CharField(max_length=50, null=True, blank=True, verbose_name='مترجم')
 
     description = models.TextField(blank=True, null=True, verbose_name="توضیحات")
 
@@ -336,40 +345,40 @@ class Book(models.Model):
         verbose_name="فایل کتاب (برای نسخه دیجیتال)"
     )
 
-    # -------------------
     # Commercial Info
-    # -------------------
-
     price = models.DecimalField(
         max_digits=10,
         decimal_places=2,
         verbose_name="قیمت"
     )
 
-    discount_price = models.DecimalField(
-        max_digits=10,
-        decimal_places=2,
-        blank=True,
-        null=True,
-        verbose_name="قیمت با تخفیف"
+    discount_price = models.PositiveSmallIntegerField(
+        default=0,
+        validators=[MinValueValidator(0), MaxValueValidator(100)],
+        verbose_name='درصد تخفیف'
     )
 
     stock = models.PositiveIntegerField(
         default=0,
-        verbose_name="موجودی انبار"
+        verbose_name="موجودی"
     )
 
     product_type = models.CharField(
         max_length=20,
         choices=PRODUCT_TYPE_CHOICES,
-        default="physical",
         verbose_name="نوع محصول"
     )
 
+    format = models.CharField(
+        max_length=20,
+        choices=FORMAT_CHOICES,
+        verbose_name="فرمت کتاب"
+    )
+
     sku = models.CharField(
-        max_length=50,
+        max_length=100,
         unique=True,
-        verbose_name="شناسه انبار (SKU)"
+        verbose_name="کد محصول (SKU)"
     )
 
     status = models.CharField(
@@ -379,82 +388,112 @@ class Book(models.Model):
         verbose_name="وضعیت انتشار"
     )
 
-    is_active = models.BooleanField(default=True, verbose_name="فعال")
+    is_active = models.BooleanField(
+        default=True,
+        verbose_name="فعال"
+    )
 
-    # -------------------
-    # Relations
-    # -------------------
+    # ---------- Book Info ----------
+    isbn = models.CharField(
+        max_length=13,
+        null=True,
+        blank=True,
+        verbose_name="شابک (ISBN)"
+    )
 
+    page_count = models.PositiveIntegerField(
+        blank=True,
+        null=True,
+        verbose_name="تعداد صفحات"
+    )
+
+    language = models.CharField(
+        max_length=50,
+        default="فارسی",
+        verbose_name="زبان"
+    )
+
+    published_date = models.DateField(
+        blank=True,
+        null=True,
+        verbose_name="تاریخ انتشار"
+    )
+
+    # ---------- Relations ----------
     author = models.ForeignKey(
         "Author",
-        on_delete=models.SET_NULL,
-        null=True,
-        related_name="books"
+        on_delete=models.CASCADE,
+        related_name="books",
+        verbose_name="نویسنده"
     )
 
     publisher = models.ForeignKey(
         "Publisher",
         on_delete=models.SET_NULL,
         null=True,
-        related_name="books"
+        blank=True,
+        verbose_name="ناشر"
     )
 
     categories = models.ManyToManyField(
         "Category",
-        related_name="books"
+        related_name="books",
+        verbose_name="دسته‌بندی‌ها"
     )
 
     creator = models.ForeignKey(
         User,
         on_delete=models.SET_NULL,
         null=True,
-        related_name="created_books"
+        verbose_name="ایجادکننده"
     )
 
-    # -------------------
-    # Stats
-    # -------------------
+    # ---------- Stats ----------
+    sell_count = models.PositiveIntegerField(
+        default=0,
+        verbose_name="تعداد فروش"
+    )
 
-    sell_count = models.PositiveIntegerField(default=0)
-    view_count = models.PositiveIntegerField(default=0)
-    download_count = models.PositiveIntegerField(default=0)
+    view_count = models.PositiveIntegerField(
+        default=0,
+        verbose_name="تعداد بازدید"
+    )
 
-    # -------------------
-    # Dates
-    # -------------------
+    download_count = models.PositiveIntegerField(
+        default=0,
+        verbose_name="تعداد دانلود"
+    )
 
-    published_date = models.DateField(blank=True, null=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    average_rating = models.FloatField(
+        default=0,
+        verbose_name="میانگین امتیاز"
+    )
+
+    # ---------- Dates ----------
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name="تاریخ ایجاد"
+    )
+
+    updated_at = models.DateTimeField(
+        auto_now=True,
+        verbose_name="آخرین بروزرسانی"
+    )
 
     comments = GenericRelation(Comment)
 
-    # -------------------
-    # Meta
-    # -------------------
-
     class Meta:
-        ordering = ["-created_at"]
         verbose_name = "کتاب"
         verbose_name_plural = "کتاب‌ها"
-
-    # -------------------
-    # Methods
-    # -------------------
+        ordering = ["-created_at"]
 
     def __str__(self):
         return self.title
 
-    def get_absolute_url(self):
-        return reverse("Bookmanager:book_page", args=[self.slug])
-
     @property
     def final_price(self):
-        """
-        قیمت نهایی بعد از تخفیف
-        """
-        if self.discount_price:
-            return self.discount_price
+        if self.discount_price and self.discount_price > 0:
+            return int(self.price * (100 - self.discount_price) / 100)
         return self.price
 
     def is_in_stock(self):
@@ -462,14 +501,8 @@ class Book(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.slug:
-            base_slug = slugify(self.english_title)
-            slug = base_slug
-            counter = 1
-
-            while Book.objects.filter(slug=slug).exists():
-                slug = f"{base_slug}-{counter}"
-                counter += 1
-
-            self.slug = slug
-
+            self.slug = slugify(self.title)
         super().save(*args, **kwargs)
+
+    def get_absolute_url(self):
+        return reverse("bookmanager:book_detail", args=[self.slug])

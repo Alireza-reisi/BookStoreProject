@@ -1,0 +1,344 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}
+{{ book.title }}
+{% endblock %}
+
+{% block description %}
+{% endblock %}
+
+{% block content %}
+<main>
+
+    <div class="breadcrumb-items">
+        <div class="row">
+            <ul class="breadcrumb">
+                <li>
+                    <a href="{% url 'pages:home' %}" class="breadcrumb-link">صفحه اصلی</a>
+                </li>
+                <li class="chevron"><span class="fa fa-chevron-left"></span></li>
+                <li>
+                <li>
+                    <a href="categories.html" class="breadcrumb-link">دسته بندی کتب</a>
+                </li>
+                <li class="chevron"><span class="fa fa-chevron-left"></span></li>
+                <li>
+                    <span class="breadcrumb-active">{{ book.title }}</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="book-details">
+        <div class="container">
+            <div class="row">
+                <div class="col-xl-12">
+                    <div class="row">
+                        <div class="col-xl-12">
+
+                            <div class="single-book d-flex align-items-center mb-0">
+                                <div class="book-img">
+                                    <img src="{{ book.image.url }}" alt="{{ book.title }}">
+                                    <!--                                    <img src="img/book/best-books1-details.jpg" alt="">-->
+                                </div>
+                                <div class="book-caption">
+                                    <h3>{{ book.title }}</h3>
+
+                                    <div class="review">
+                                        <!--                                        <div class="rating">-->
+                                        <!--                                            <i class="fas fa-star"></i>-->
+                                        <!--                                            <i class="fas fa-star"></i>-->
+                                        <!--                                            <i class="fas fa-star"></i>-->
+                                        <!--                                            <i class="fas fa-star"></i>-->
+                                        <!--                                            <i class="fas fa-star-half-alt"></i>-->
+                                        <!--                                        </div>-->
+                                        <p>(<span>{{ comments_page.paginator.count }}</span> نظر)</p>
+                                    </div>
+
+                                    <p>نویسنده: <a href="{{ book.author.get_absolute_url }}" target="_self">
+                                        {{ book.author.name }}</a></p>
+                                    {% if book.translator %}
+                                    <p>مترجم: <span>{{ book.translator }}</span></p>
+                                    {% endif %}
+                                    <p>ناشر: <a href="#" target="_self">{{ book.publisher.name }}</a></p>
+                                    <div class="price">
+                                        {% if book.discount_price > 0 %}
+                                        <p>
+                                            <del>{{ book.price|floatformat:0|intcomma }}</del>
+                                            <span class="text-danger">
+                                                {{ book.final_price|floatformat:0|intcomma }} تومان
+                                            </span>
+                                            <small class="badge bg-success">
+                                                {{ book.discount_price }}٪ تخفیف
+                                            </small>
+                                        </p>
+                                        {% else %}
+                                        <p>
+                                            {{ book.price|floatformat:0|intcomma }}
+                                            <span>تومان</span>
+                                        </p>
+
+                                        {% endif %}
+                                    </div>
+                                    <a href="#" class="white-btn mr-10">افزودن به سبد خرید</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <section class="our-client section-padding best-selling">
+        <div class="container">
+            <div class="row">
+                <div class="offset-xl-1 col-xl-10">
+                    <div class="nav-button f-right">
+
+                        <nav>
+                            <div class="nav nav-tabs " id="nav-tab" role="tablist">
+                                <a class="nav-link active" id="nav-one-tab" data-bs-toggle="tab" href="#nav-one"
+                                   role="tab" aria-controls="nav-one" aria-selected="true">توضیحات</a>
+                                <a class="nav-link" id="nav-two-tab" data-bs-toggle="tab" href="#nav-two" role="tab"
+                                   aria-controls="nav-two" aria-selected="false">درباره نویسنده</a>
+                                <a class="nav-link" id="nav-three-tab" data-bs-toggle="tab" href="#nav-three"
+                                   role="tab" aria-controls="nav-three" aria-selected="false">مشخصات کتاب</a>
+                                <a class="nav-link" id="nav-four-tab" data-bs-toggle="tab" href="#nav-four"
+                                   role="tab" aria-controls="nav-four" aria-selected="false">نظرات</a>
+                            </div>
+                        </nav>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="container">
+
+            <div class="tab-content" id="nav-tabContent">
+                <div class="tab-pane fade show active" id="nav-one" role="tabpanel" aria-labelledby="nav-one-tab">
+
+                    <div class="row">
+                        <div class="desc-tab offset-xl-1 col-lg-9 mt-3">
+                            <p>{{ book.description }}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="nav-two" role="tabpanel" aria-labelledby="nav-two-tab">
+
+                    <div class="row">
+                        <div class="author-img">
+                            {% if book.author.photo %}
+                            <img src="{{ book.author.photo.url }}" alt="{{ book.author.name }}">
+                            {% else %}
+                            <img src="{% static 'images/no-author.png' %}">
+                            {% endif %}
+                        </div>
+                        <div class="author-tab offset-xl-1 col-lg-9 mt-3">
+                            <p>{{ book.author.biography|default:"اطلاعاتی درباره نویسنده موجود نیست." }}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="nav-three" role="tabpanel" aria-labelledby="nav-three-tab">
+
+                    <div class="row">
+                        <div class="table-book offset-xl-1 col-lg-9">
+                            <table class="details">
+                                <thead>
+                                <tr>
+                                    <th class="first">نام کتاب</th>
+                                    <th class="second">{{ book.title }}<br></th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td class="first">نویسنده</td>
+                                    <td class="second">{{ book.author.name }}</td>
+                                </tr>
+                                {% if book.translator %}
+                                <tr>
+                                    <td class="first">مترجم</td>
+                                    <td class="second">{{ book.translator }}</td>
+                                </tr>
+                                {% endif %}
+                                <tr>
+                                    <td class="first">ناشر</td>
+                                    <td class="second">{{ book.publisher.name }}</td>
+                                </tr>
+
+                                <tr>
+                                    <td class="first">فرمت کتاب</td>
+                                    <td class="second">{{ book.get_format_display }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="first">زبان</td>
+                                    <td class="second">{{ book.language }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="first">شابک</td>
+                                    <td class="second">{{ book.isbn }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="first">موضوع کتاب</td>
+                                    <td class="second">
+                                        {% for cat in book.categories.all %}
+                                        {{ cat.name }}{% if not forloop.last %}، {% endif %}
+                                        {% endfor %}
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="nav-four" role="tabpanel" aria-labelledby="nav-four-tab">
+
+                    <div class="row">
+                        <div class="comment-tab offset-xl-1 col-lg-9">
+                            <div class="container bootdey">
+                                <div class="col-md-12 bootstrap snippets">
+                                    <form method="post">
+                                        {% csrf_token %}
+                                        <div class="panel">
+                                            {% if form.non_field_errors %}
+                                            <div class="alert alert-danger">
+                                                {{ form.non_field_errors }}
+                                            </div>
+                                            {% endif %}
+                                            <div class="panel-body">
+                                                {% if form.text.errors %}
+                                                <div class="alert alert-danger">
+                                                    {{ form.text.errors }}
+                                                </div>
+                                                {% endif %}
+                                                {{ form.text }}
+                                                <div class="mar-top captcha-container">
+                                                    {{ form.captcha }}
+                                                </div>
+
+
+                                                <div class="mar-top clearfix">
+                                                    <button class="btn btn-sm btn-primary pull-right" type="submit">
+                                                        <i class="fa fa-pencil fa-fw"></i> ارسال نظر
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </form>
+                                    <div id="comments-wrapper" class="panel">
+                                        {% include "bookmanager/partials/comments_list.html" %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="related-books section-bg">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-xl-7 col-lg-8">
+                    <div class="section-tittle text-center mb-55">
+                        <h2>کتاب های مرتبط</h2>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xl-12">
+                        <div class="related-books-box">
+                            {% for related_book in related_books %}
+                            <div class="properties pb-20">
+                                <div class="properties-card">
+                                    <div class="properties-img">
+                                        <a href="{{ related_book.get_absolute_url }}"><img
+                                                src="{{ related_book.image.url }}"
+                                                alt="{{ related_book.title }}"></a>
+                                    </div>
+                                    <div class="properties-caption">
+                                        <h3><a href="{{ related_book.get_absolute_url }}">{{ related_book.title }}</a>
+                                        </h3>
+                                        <a href="{{ related_book.author.get_absolute_url }}" target="_parent">
+                                            {{ related_book.author.name }}</a>
+                                        <div class="properties-footer">
+                                            <div class="review">
+                                                <!--                                                    <div class="rating">-->
+                                                <!--                                                        <i class="fas fa-star"></i>-->
+                                                <!--                                                        <i class="fas fa-star"></i>-->
+                                                <!--                                                        <i class="fas fa-star"></i>-->
+                                                <!--                                                        <i class="fas fa-star"></i>-->
+                                                <!--                                                        <i class="fas fa-star-half-alt"></i>-->
+                                                <!--                                                    </div>-->
+                                                <p>(<span>{{ related_book.comments_count }}</span> نظر)</p>
+                                            </div>
+                                            <div class="price">
+                                                {% if related_book.discount_price > 0 %}
+                                                <p>
+                                                    <del>{{ related_book.price|floatformat:0|intcomma }}</del>
+                                                    <span class="text-danger">
+                                                {{ related_book.final_price|floatformat:0|intcomma }} تومان
+                                            </span>
+                                                    <small class="badge bg-success">
+                                                        {{ related_book.discount_price }}٪ تخفیف
+                                                    </small>
+                                                </p>
+                                                {% else %}
+                                                <p>
+                                                    {{ related_book.price|floatformat:0|intcomma }}
+                                                    <span>تومان</span>
+                                                </p>
+
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        </div>
+    </section>
+    {% include "bookmanager/partials/newsletter_area.html" %}
+
+
+</main>
+<script>
+
+    document.addEventListener("click", function (e) {
+
+        if (e.target.classList.contains("ajax-page")) {
+
+            e.preventDefault()
+
+            let url = e.target.getAttribute("href")
+
+            fetch(url, {
+                headers: {
+                    "X-Requested-With": "XMLHttpRequest"
+                }
+            })
+                .then(res => res.json())
+                .then(data => {
+
+                    document.getElementById("comments-wrapper").innerHTML = data.html
+
+                    document.getElementById("comments-wrapper")
+                        .scrollIntoView({behavior: "smooth"})
+
+                })
+
+        }
+
+    })
+
+</script>
+
+{% endblock %}
