@@ -1,0 +1,41 @@
+{% load static %}
+{% for author in authors %}
+
+<article class="author_item">
+
+    <div class="author_item_img">
+
+        <img class="card-img rounded-0"
+             src="{{ author.photo.url }}"
+             alt="{{ author.name }}">
+
+        <a href="#" class="author_item_gener">
+            <h3>ژانر</h3>
+            <p>{{ author.get_writing_field_display }}</p>
+        </a>
+    </div>
+
+    <div class="author_details">
+        <a class="d-inline-block"
+           href="{% url 'bookmanager:author_detail' author.slug %}">
+            <h2 class="author-head" style="color: #2d2d2d;">
+                {{ author.name }}
+            </h2>
+        </a>
+
+        <p>{{ author.biography|truncatewords:40 }}</p>
+
+        <ul class="author-info-link">
+            <li><a><i class="fa fa-user"></i> {{ author.books.count }} کتاب</a></li>
+            <li><a><i class="fa fa-comments"></i> {{ author.comments.count }} نظر</a></li>
+        </ul>
+
+    </div>
+
+</article>
+
+{% empty %}
+
+<p class="text-center">هیچ نویسنده‌ای یافت نشد.</p>
+
+{% endfor %}

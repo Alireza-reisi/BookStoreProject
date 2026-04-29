@@ -394,31 +394,18 @@ BOOKINO
                         </div>
                         <hr>
                         <ul class="best-author-box">
+                            {% for author in best_authors %}
                             <li>
-                                <img src="img/author/woman-author-one.jpg" alt="">
-                                <p>باربارا دی آنجلیس</p>
-                                <a href="author-details.html"><i class="fa-solid fa-circle-chevron-left"></i></a>
+                                <img src="{{ author.photo.url }}" alt="{{ author.english_name }}">
+                                <p>{{ author.name }}</p>
+                                <a href="{% url 'bookmanager:author_detail' author.slug %}"><i class="fa-solid fa-circle-chevron-left"></i></a>
                             </li>
-                            <li>
-                                <img src="img/author/woman-author-two.jpg" alt="">
-                                <p>ماریا شاون</p>
-                                <a href="author-details.html"><i class="fa-solid fa-circle-chevron-left"></i></a>
-                            </li>
-                            <li>
-                                <img src="img/author/man-author-one.jpg" alt="">
-                                <p>رحیل ابراهیم</p>
-                                <a href="author-details.html"><i class="fa-solid fa-circle-chevron-left"></i></a>
-                            </li>
-                            <li>
-                                <img src="img/author/man-author-two.jpg" alt="">
-                                <p>آدام اسمیت</p>
-                                <a href="author-details.html"><i class="fa-solid fa-circle-chevron-left"></i></a>
-                            </li>
+                            {% endfor %}
                         </ul>
                         <hr>
                         <div class="best-author-footer">
-                            <a href="author.html">همه نویسندگان</a>
-                            <a href="author.html"><i class="fa-solid fa-circle-chevron-left"></i></a>
+                            <a href="{% url 'bookmanager:author_list' %}">همه نویسندگان</a>
+                            <a href="{% url 'bookmanager:author_list' %}"><i class="fa-solid fa-circle-chevron-left"></i></a>
                         </div>
                     </div>
                 </div>
@@ -1515,82 +1502,82 @@ BOOKINO
         </div>
     </section>
 
-    <section class="testimonials">
-        <div class="container">
-            <div class="row testimonial-head">
-                <div class="section-tittle">
-                    <h2>نظر مشتریان کابانا</h2>
-                </div>
-                <hr class="solid">
-            </div>
-            <div class="row">
-                <div class="col-sm-12">
-                    <div id="customers-testimonials" class="owl-carousel">
-                        <!--TESTIMONIAL 1 -->
-                        <div class="item">
-                            <div class="shadow-effect">
-                                <img class="img-circle" src="img/comments/testimonial4.jpg" alt="">
-                                <p>لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ و با استفاده از طراحان
-                                    گرافیک است. چاپگرها و متون بلکه روزنامه و مجله در ستون و سطرآنچنان که لازم است و
-                                    برای شرایط فعلی تکنولوژی مورد نیاز و کاربردهای متنوع با هدف بهبود ابزارهای کاربردی
-                                    می باشد. </p>
-                            </div>
-                            <div class="testimonial-name">سامان</div>
-                        </div>
-                        <!--END OF TESTIMONIAL 1 -->
-                        <!--TESTIMONIAL 2 -->
-                        <div class="item">
-                            <div class="shadow-effect">
-                                <img class="img-circle" src="img/comments/testimonial3.jpg" alt="">
-                                <p>لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ و با استفاده از طراحان
-                                    گرافیک است. چاپگرها و متون بلکه روزنامه و مجله در ستون و سطرآنچنان که لازم است و
-                                    برای شرایط فعلی تکنولوژی مورد نیاز و کاربردهای متنوع با هدف بهبود ابزارهای کاربردی
-                                    می باشد. </p>
-                            </div>
-                            <div class="testimonial-name">مریم</div>
-                        </div>
-                        <!--END OF TESTIMONIAL 2 -->
-                        <!--TESTIMONIAL 3 -->
-                        <div class="item">
-                            <div class="shadow-effect">
-                                <img class="img-circle" src="img/comments/testimonial1.jpg" alt="">
-                                <p>لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ و با استفاده از طراحان
-                                    گرافیک است. چاپگرها و متون بلکه روزنامه و مجله در ستون و سطرآنچنان که لازم است و
-                                    برای شرایط فعلی تکنولوژی مورد نیاز و کاربردهای متنوع با هدف بهبود ابزارهای کاربردی
-                                    می باشد. </p>
-                            </div>
-                            <div class="testimonial-name">شیما</div>
-                        </div>
-                        <!--END OF TESTIMONIAL 3 -->
-                        <!--TESTIMONIAL 4 -->
-                        <div class="item">
-                            <div class="shadow-effect">
-                                <img class="img-circle" src="img/comments/testimonial2.jpg" alt="">
-                                <p>لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ و با استفاده از طراحان
-                                    گرافیک است. چاپگرها و متون بلکه روزنامه و مجله در ستون و سطرآنچنان که لازم است و
-                                    برای شرایط فعلی تکنولوژی مورد نیاز و کاربردهای متنوع با هدف بهبود ابزارهای کاربردی
-                                    می باشد. </p>
-                            </div>
-                            <div class="testimonial-name">سعید</div>
-                        </div>
-                        <!--END OF TESTIMONIAL 4 -->
-                        <!--TESTIMONIAL 5 -->
-                        <div class="item">
-                            <div class="shadow-effect">
-                                <img class="img-circle" src="img/comments/testimonial5.jpg" alt="">
-                                <p>لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ و با استفاده از طراحان
-                                    گرافیک است. چاپگرها و متون بلکه روزنامه و مجله در ستون و سطرآنچنان که لازم است و
-                                    برای شرایط فعلی تکنولوژی مورد نیاز و کاربردهای متنوع با هدف بهبود ابزارهای کاربردی
-                                    می باشد. </p>
-                            </div>
-                            <div class="testimonial-name">محمد</div>
-                        </div>
-                        <!--END OF TESTIMONIAL 5 -->
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
+<!--    <section class="testimonials">-->
+<!--        <div class="container">-->
+<!--            <div class="row testimonial-head">-->
+<!--                <div class="section-tittle">-->
+<!--                    <h2>نظر مشتریان کابانا</h2>-->
+<!--                </div>-->
+<!--                <hr class="solid">-->
+<!--            </div>-->
+<!--            <div class="row">-->
+<!--                <div class="col-sm-12">-->
+<!--                    <div id="customers-testimonials" class="owl-carousel">-->
+<!--                        &lt;!&ndash;TESTIMONIAL 1 &ndash;&gt;-->
+<!--                        <div class="item">-->
+<!--                            <div class="shadow-effect">-->
+<!--                                <img class="img-circle" src="img/comments/testimonial4.jpg" alt="">-->
+<!--                                <p>لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ و با استفاده از طراحان-->
+<!--                                    گرافیک است. چاپگرها و متون بلکه روزنامه و مجله در ستون و سطرآنچنان که لازم است و-->
+<!--                                    برای شرایط فعلی تکنولوژی مورد نیاز و کاربردهای متنوع با هدف بهبود ابزارهای کاربردی-->
+<!--                                    می باشد. </p>-->
+<!--                            </div>-->
+<!--                            <div class="testimonial-name">سامان</div>-->
+<!--                        </div>-->
+<!--                        &lt;!&ndash;END OF TESTIMONIAL 1 &ndash;&gt;-->
+<!--                        &lt;!&ndash;TESTIMONIAL 2 &ndash;&gt;-->
+<!--                        <div class="item">-->
+<!--                            <div class="shadow-effect">-->
+<!--                                <img class="img-circle" src="img/comments/testimonial3.jpg" alt="">-->
+<!--                                <p>لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ و با استفاده از طراحان-->
+<!--                                    گرافیک است. چاپگرها و متون بلکه روزنامه و مجله در ستون و سطرآنچنان که لازم است و-->
+<!--                                    برای شرایط فعلی تکنولوژی مورد نیاز و کاربردهای متنوع با هدف بهبود ابزارهای کاربردی-->
+<!--                                    می باشد. </p>-->
+<!--                            </div>-->
+<!--                            <div class="testimonial-name">مریم</div>-->
+<!--                        </div>-->
+<!--                        &lt;!&ndash;END OF TESTIMONIAL 2 &ndash;&gt;-->
+<!--                        &lt;!&ndash;TESTIMONIAL 3 &ndash;&gt;-->
+<!--                        <div class="item">-->
+<!--                            <div class="shadow-effect">-->
+<!--                                <img class="img-circle" src="img/comments/testimonial1.jpg" alt="">-->
+<!--                                <p>لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ و با استفاده از طراحان-->
+<!--                                    گرافیک است. چاپگرها و متون بلکه روزنامه و مجله در ستون و سطرآنچنان که لازم است و-->
+<!--                                    برای شرایط فعلی تکنولوژی مورد نیاز و کاربردهای متنوع با هدف بهبود ابزارهای کاربردی-->
+<!--                                    می باشد. </p>-->
+<!--                            </div>-->
+<!--                            <div class="testimonial-name">شیما</div>-->
+<!--                        </div>-->
+<!--                        &lt;!&ndash;END OF TESTIMONIAL 3 &ndash;&gt;-->
+<!--                        &lt;!&ndash;TESTIMONIAL 4 &ndash;&gt;-->
+<!--                        <div class="item">-->
+<!--                            <div class="shadow-effect">-->
+<!--                                <img class="img-circle" src="img/comments/testimonial2.jpg" alt="">-->
+<!--                                <p>لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ و با استفاده از طراحان-->
+<!--                                    گرافیک است. چاپگرها و متون بلکه روزنامه و مجله در ستون و سطرآنچنان که لازم است و-->
+<!--                                    برای شرایط فعلی تکنولوژی مورد نیاز و کاربردهای متنوع با هدف بهبود ابزارهای کاربردی-->
+<!--                                    می باشد. </p>-->
+<!--                            </div>-->
+<!--                            <div class="testimonial-name">سعید</div>-->
+<!--                        </div>-->
+<!--                        &lt;!&ndash;END OF TESTIMONIAL 4 &ndash;&gt;-->
+<!--                        &lt;!&ndash;TESTIMONIAL 5 &ndash;&gt;-->
+<!--                        <div class="item">-->
+<!--                            <div class="shadow-effect">-->
+<!--                                <img class="img-circle" src="img/comments/testimonial5.jpg" alt="">-->
+<!--                                <p>لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ و با استفاده از طراحان-->
+<!--                                    گرافیک است. چاپگرها و متون بلکه روزنامه و مجله در ستون و سطرآنچنان که لازم است و-->
+<!--                                    برای شرایط فعلی تکنولوژی مورد نیاز و کاربردهای متنوع با هدف بهبود ابزارهای کاربردی-->
+<!--                                    می باشد. </p>-->
+<!--                            </div>-->
+<!--                            <div class="testimonial-name">محمد</div>-->
+<!--                        </div>-->
+<!--                        &lt;!&ndash;END OF TESTIMONIAL 5 &ndash;&gt;-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--    </section>-->
 
     <section class="subscribe-area">
         <div class="container">

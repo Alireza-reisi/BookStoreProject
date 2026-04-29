@@ -3,12 +3,22 @@ from django.views.generic import TemplateView, FormView
 from django.urls import reverse_lazy
 from django.contrib import messages
 from .forms import ContactForm
+from bookmanager.models import Author
+from django.db.models import Count
 
 logger = logging.getLogger(__name__)
 
 
 class HomeView(TemplateView):
     template_name = "pages/home.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        best_authors = Author.objects.annotate(books_count=Count('books')).order_by('-books_count')[:4]
+        context['best_authors'] = best_authors
+
+        return context
 
 
 class AboutView(TemplateView):

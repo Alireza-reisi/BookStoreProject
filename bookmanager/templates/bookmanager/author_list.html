@@ -1,0 +1,146 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}
+authors
+{% endblock %}
+
+{% block description %}
+{% endblock %}
+
+{% block content %}
+<main>
+
+    <div class="breadcrumb-items">
+        <div class="row">
+            <ul class="breadcrumb">
+                <li>
+                    <a href="{% url 'pages:home' %}" class="breadcrumb-link">صفحه اصلی</a>
+                </li>
+                <li class="chevron"><span class="fa fa-chevron-left"></span></li>
+                <li>
+                    <span class="breadcrumb-active">نویسندگان</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="row">
+            <div class="col-xl-12">
+                <div class="slider-area">
+                    <div class="slider-height2 slider-bg5 d-flex align-items-center justify-content-center">
+                        <div class="hero-caption hero-caption2">
+                            <h2>نویسندگان</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <section class="author_area section-padding">
+        <div class="container">
+            <div class="row">
+
+                <!-- left section -->
+                <div class="col-lg-8 mb-5 mb-lg-0">
+                    <div class="author_left_sidebar">
+
+                        <!-- Wrapper for AJAX items -->
+                        <div id="authors-wrapper">
+                            {% include "bookmanager/partials/author_list_items.html" %}
+                        </div>
+
+                        <!-- Wrapper for AJAX pagination -->
+                        <div id="pagination-wrapper">
+                            {% include "bookmanager/partials/author_pagination.html" %}
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- RIGHT SIDEBAR -->
+                <div class="col-lg-4">
+                    <div class="author_right_sidebar">
+
+                        <!-- Search -->
+                        <aside class="single_sidebar_widget search_widget">
+                            <form id="search-form">
+                                <div class="form-group m-0">
+                                    <div class="input-group">
+                                        <input
+                                                type="text"
+                                                name="search"
+                                                value="{{ search_query }}"
+                                                class="form-control"
+                                                placeholder="جستجو نویسنده...">
+                                        <div class="input-group-append d-flex">
+                                            <button class="boxed-btn2" type="submit">جستجو</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </aside>
+
+                        <!-- Genre Filter -->
+                        <aside class="single_sidebar_widget post_category_widget">
+                            <h4 class="widget_title" style="color: #2d2d2d;">دسته‌بندی براساس ژانر</h4>
+                            <ul class="list cat-list">
+
+                                {% for genre in genres %}
+                                <li>
+                                    <a href="?genre={{ genre.writing_field }}" class="d-flex">
+                                        <p>{{ genre.label }}</p>
+                                        <p>({{ genre.total }})</p>
+                                    </a>
+                                </li>
+                                {% empty %}
+                                <li>ژانری یافت نشد.</li>
+                                {% endfor %}
+
+                            </ul>
+                        </aside>
+
+                        <!-- Static sections can stay same -->
+                        {% include "bookmanager/partials/right_sidebar_static.html" %}
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+
+<script>
+    // AJAX pagination + filters + search
+
+    document.addEventListener("click", function (e) {
+        if (e.target.closest(".ajax-page-link")) {
+            e.preventDefault();
+            fetchAjaxPage(e.target.getAttribute("href"));
+        }
+    });
+
+    // AJAX Search
+    document.querySelector("#search-form")?.addEventListener("submit", function (e) {
+        e.preventDefault();
+        const query = this.search.value;
+        fetchAjaxPage("?search=" + query);
+    });
+
+    function fetchAjaxPage(url) {
+        fetch(url, {
+            headers: {"x-requested-with": "XMLHttpRequest"}
+        })
+            .then(res => res.json())
+            .then(data => {
+                document.querySelector("#authors-wrapper").innerHTML = data.html;
+                document.querySelector("#pagination-wrapper").innerHTML = data.pagination;
+                window.scrollTo({top: 0, behavior: "smooth"});
+            });
+    }
+</script>
+{% endblock %}

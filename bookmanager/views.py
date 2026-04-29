@@ -10,6 +10,8 @@ from django.contrib import messages
 import logging
 from django.template.loader import render_to_string
 from django.http import JsonResponse
+from django.db.models import Count
+from django.db.models import Q
 
 logger = logging.getLogger(__name__)
 
@@ -32,6 +34,73 @@ def ReactToCommentView(request, comment_id, reaction_type):
         obj.save()
 
     return redirect(request.META.get("HTTP_REFERER", "/"))
+
+
+class AuthorListView(ListView):
+    model = Author
+    template_name = "bookmanager/author_list.html"
+    context_object_name = "authors"
+    paginate_by = 6
+
+    def get_queryset(self):
+        queryset = Author.objects.all().prefetch_related("books")
+
+        # فیلتر ژانر
+        genre = self.request.GET.get("genre")
+        if genre:
+            queryset = queryset.filter(writing_field=genre)
+
+        # جستجو
+        search = self.request.GET.get("search")
+        if search:
+            queryset = queryset.filter(
+                Q(name__icontains=search) |
+                Q(english_name__icontains=search)
+            )
+
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        genres = (
+            Author.objects.values("writing_field")
+            .annotate(total=Count("id"))
+            .order_by("writing_field")
+        )
+
+        writing_field_map = dict(Author.WritingField.choices)
+
+        for genre in genres:
+            genre["label"] = writing_field_map.get(genre["writing_field"], "")
+
+        context["genres"] = genres
+        context["current_genre"] = self.request.GET.get("genre", "")
+        context["search_query"] = self.request.GET.get("search", "")
+
+        return context
+
+    def render_to_response(self, context, **response_kwargs):
+        # اگر درخواست AJAX بود → فقط HTML لیست + pagination را برگردان
+        if self.request.headers.get("x-requested-with") == "XMLHttpRequest":
+            html = render_to_string(
+                "bookmanager/partials/author_list_items.html",
+                context,
+                request=self.request
+            )
+            pagination = render_to_string(
+                "bookmanager/partials/author_pagination.html",
+                context,
+                request=self.request
+            )
+
+            return JsonResponse({
+                "html": html,
+                "pagination": pagination,
+            })
+
+        # حالت معمولی → کل صفحه
+        return super().render_to_response(context, **response_kwargs)
 
 
 class AuthorDetailView(DetailView):
