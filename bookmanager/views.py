@@ -2,7 +2,7 @@ from django.views.generic import TemplateView, ListView, DetailView, CreateView,
 from .models import Book, Author, Publisher, Category, Comment, CommentReaction
 from django.db.models import Prefetch
 from .forms import AuthorForm, CommentForm
-from django.shortcuts import get_object_or_404, redirect
+from django.shortcuts import get_object_or_404, redirect, render
 from django.core.paginator import Paginator
 from django.utils.text import slugify
 from django.urls import reverse
@@ -34,6 +34,103 @@ def ReactToCommentView(request, comment_id, reaction_type):
         obj.save()
 
     return redirect(request.META.get("HTTP_REFERER", "/"))
+
+
+class BookListView(ListView):
+    model = Book
+    template_name = "bookmanager/book_list.html"
+    context_object_name = "books"
+    paginate_by = 12
+
+    def get_queryset(self):
+        qs = Book.objects.all()
+
+        # پایه annotation برای همه
+        qs = qs.annotate(comments_count=Count("comments"))
+
+        categories = self.request.GET.getlist("categories")
+        publishers = self.request.GET.getlist("publishers")
+        authors = self.request.GET.getlist("authors")
+        min_price = self.request.GET.get("min_price")
+        max_price = self.request.GET.get("max_price")
+        sort = self.request.GET.get("sort")
+
+        def to_int_list(values):
+            result = []
+            for val in values:
+                try:
+                    result.append(int(val))
+                except:
+                    pass
+            return result
+
+        categories = to_int_list(categories)
+        publishers = to_int_list(publishers)
+        authors = to_int_list(authors)
+
+        # ✅ مرتب‌سازی
+        if sort == "name":
+            qs = qs.order_by("title")
+        elif sort == "newest":
+            qs = qs.order_by("-created_at")
+        elif sort == "oldest":
+            qs = qs.order_by("created_at")
+        elif sort == "price_asc":
+            qs = qs.order_by("price")
+        elif sort == "price_desc":
+            qs = qs.order_by("-price")
+        elif sort == "popular":
+            qs = qs.order_by("-comments_count")
+
+        # ✅ فیلترها
+        if categories:
+            qs = qs.filter(categories__id__in=categories)
+        if publishers:
+            qs = qs.filter(publisher__id__in=publishers)
+        if authors:
+            qs = qs.filter(authors__id__in=authors)
+        if min_price and min_price.isdigit():
+            qs = qs.filter(price__gte=int(min_price))
+        if max_price and max_price.isdigit():
+            qs = qs.filter(price__lte=int(max_price))
+
+        return qs.distinct()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # انتخاب‌شده‌ها (برای چک‌باکس‌ها)
+        getlist = self.request.GET.getlist
+        to_int = lambda x: int(x) if x.isdigit() else None
+
+        context["selected_categories"] = [to_int(c) for c in getlist("categories") if c.isdigit()]
+        context["selected_publishers"] = [to_int(p) for p in getlist("publishers") if p.isdigit()]
+        context["selected_authors"] = [to_int(a) for a in getlist("authors") if a.isdigit()]
+
+        context["min_price"] = self.request.GET.get("min_price")
+        context["max_price"] = self.request.GET.get("max_price")
+
+        context["selected_sort"] = self.request.GET.get("sort", "")
+
+        # داده‌های فیلتر
+        context["categories"] = Category.objects.all()
+        context["publishers"] = Publisher.objects.all()
+        context["authors"] = Author.objects.all()
+
+        return context
+
+    def render_to_response(self, context, **response_kwargs):
+
+        # اگر درخواست Ajax بود → فقط partial برگردان
+        if self.request.headers.get("X-Requested-With") == "XMLHttpRequest":
+            return render(
+                self.request,
+                "bookmanager/partials/books_list_content.html",
+                context
+            )
+
+        # در غیر این صورت → صفحه کامل
+        return super().render_to_response(context, **response_kwargs)
 
 
 class BookDetailView(DetailView):
@@ -196,7 +293,6 @@ class AuthorListView(ListView):
                 "pagination": pagination,
             })
 
-        # حالت معمولی → کل صفحه
         return super().render_to_response(context, **response_kwargs)
 
 
