@@ -16,12 +16,12 @@ Books
         <div class="row">
             <ul class="breadcrumb">
                 <li>
-                    <a href="index.html" class="breadcrumb-link">صفحه اصلی</a>
+                    <a href="{% url 'pages:home' %}" class="breadcrumb-link">صفحه اصلی</a>
                 </li>
                 <li class="chevron"><span class="fa fa-chevron-left"></span></li>
                 <li>
                 <li>
-                    <span class="breadcrumb-active">دسته بندی کتب</span>
+                    <span class="breadcrumb-active">کتاب ها</span>
                 </li>
             </ul>
         </div>
@@ -33,7 +33,7 @@ Books
                 <div class="slider-area">
                     <div class="slider-height2 slider-bg4 d-flex align-items-center">
                         <div class="hero-caption hero-caption2">
-                            <h2>دسته بندی موضوعی</h2>
+                            <h2>کتاب ها</h2>
                         </div>
                     </div>
                 </div>
@@ -55,13 +55,12 @@ Books
                             <div class="product_page_tittle">
                                 <div class="short_by">
                                     <select name="sort" class="js-sort">
-                                        <option value="">مرتب‌سازی پیش‌فرض</option>
-                                        <option value="popular">مرتب‌سازی براساس محبوبیت</option>
-                                        <option value="name">مرتب‌سازی براساس نام</option>
-                                        <option value="newest">مرتب‌سازی براساس جدیدترین</option>
-                                        <option value="oldest">مرتب‌سازی براساس قدیمی‌ترین</option>
-                                        <option value="price_asc">مرتب‌سازی براساس قیمت (کم به زیاد)</option>
-                                        <option value="price_desc">مرتب‌سازی براساس قیمت (زیاد به کم)</option>
+                                        <option value="">مرتب سازی</option>
+                                        <option value="newest">جدیدترین</option>
+                                        <option value="oldest">قدیمی‌ترین</option>
+                                        <option value="price_asc">ارزان‌ترین</option>
+                                        <option value="price_desc">گران‌ترین</option>
+                                        <option value="popular">محبوب‌ترین</option>
                                     </select>
                                 </div>
                             </div>
@@ -81,71 +80,68 @@ Books
     {% include 'bookmanager/partials/newsletter_area.html' %}
 </main>
 <script>
-document.addEventListener("DOMContentLoaded", function () {
-    const container = document.getElementById("bookListContainer");
-    if (!container) return;
+    document.addEventListener("DOMContentLoaded", function () {
+        const container = document.getElementById("bookListContainer");
+        if (!container) return;
 
-    // تابع ساخت URL بر اساس فیلترهای فعلی
-    function buildUrl(extraParams = {}) {
-        const url = new URL(window.location.href);
-        const formElements = document.querySelectorAll(
-            "input[name='categories']:checked, input[name='publishers']:checked, input[name='authors']:checked, input[name='min_price'], input[name='max_price'], select[name='sort']"
-        );
+        // تابع ساخت URL بر اساس فیلترهای فعلی
+        function buildUrl(extraParams = {}) {
+            const url = new URL(window.location.pathname, window.location.origin);
 
-        // فیلترهای فعلی
-        url.searchParams.forEach((_, key) => url.searchParams.delete(key));
+            const formElements = document.querySelectorAll(
+                "input[name='categories']:checked, input[name='publishers']:checked, input[name='authors']:checked, input[name='min_price'], input[name='max_price'], select[name='sort']"
+            );
 
-        formElements.forEach(el => {
-            if (el.type === "checkbox" && el.checked) {
-                url.searchParams.append(el.name, el.value);
-            } else if (el.value) {
-                url.searchParams.set(el.name, el.value);
-            }
-        });
+            formElements.forEach(el => {
+                if (el.type === "checkbox" && el.checked) {
+                    url.searchParams.append(el.name, el.value);
+                } else if (el.value) {
+                    url.searchParams.set(el.name, el.value);
+                }
+            });
 
-        // اضافه پارامترهای اضافی مثل page
-        Object.keys(extraParams).forEach(key => {
-            if (extraParams[key]) {
-                url.searchParams.set(key, extraParams[key]);
-            }
-        });
+            Object.keys(extraParams).forEach(key => {
+                if (extraParams[key]) {
+                    url.searchParams.set(key, extraParams[key]);
+                }
+            });
 
-        return url.pathname + "?" + url.searchParams.toString();
-    }
-
-    // تابع لود Ajax
-    function loadBooks(url) {
-        fetch(url, {
-            headers: {"X-Requested-With": "XMLHttpRequest"}
-        })
-        .then(res => res.text())
-        .then(html => {
-            container.innerHTML = html;
-            container.scrollIntoView({behavior:"smooth", block:"start"});
-            window.history.replaceState({}, "", url);
-        })
-        .catch(err => console.error(err));
-    }
-
-    // ✅ فیلترها - هر تغییر اعمال شود
-    document.addEventListener("change", function (e) {
-        const el = e.target;
-        if (el.matches("input[name='categories'], input[name='publishers'], input[name='authors'], input[name='min_price'], input[name='max_price'], select[name='sort']")) {
-            const url = buildUrl({page: 1});
-            loadBooks(url);
+            return url.pathname + "?" + url.searchParams.toString();
         }
-    });
 
-    // ✅ صفحه‌بندی
-    document.addEventListener("click", function (e) {
-        const link = e.target.closest(".pagination-link");
-        if (!link) return;
-        e.preventDefault();
-        const page = new URL(link.href).searchParams.get("page");
-        const url = buildUrl({page});
-        loadBooks(url);
+        // تابع لود Ajax
+        function loadBooks(url) {
+            fetch(url, {
+                headers: {"X-Requested-With": "XMLHttpRequest"}
+            })
+                .then(res => res.text())
+                .then(html => {
+                    container.innerHTML = html;
+                    container.scrollIntoView({behavior: "smooth", block: "start"});
+                    window.history.replaceState({}, "", url);
+                })
+                .catch(err => console.error(err));
+        }
+
+        // ✅ فیلترها - هر تغییر اعمال شود
+        document.addEventListener("change", function (e) {
+            const el = e.target;
+            if (el.matches("input[name='categories'], input[name='publishers'], input[name='authors'], input[name='min_price'], input[name='max_price'], select[name='sort']")) {
+                const url = buildUrl({page: 1});
+                loadBooks(url);
+            }
+        });
+
+        // ✅ صفحه‌بندی
+        document.addEventListener("click", function (e) {
+            const link = e.target.closest(".pagination-link");
+            if (!link) return;
+            e.preventDefault();
+            const page = new URL(link.href).searchParams.get("page");
+            const url = buildUrl({page});
+            loadBooks(url);
+        });
     });
-});
 </script>
 
 {% endblock %}

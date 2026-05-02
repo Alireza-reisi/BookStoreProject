@@ -1,4 +1,4 @@
-from django.views.generic import TemplateView, ListView, DetailView, CreateView, UpdateView, DeleteView
+from django.views.generic import TemplateView, ListView, DetailView, CreateView, UpdateView, DeleteView, View
 from .models import Book, Author, Publisher, Category, Comment, CommentReaction
 from django.db.models import Prefetch
 from .forms import AuthorForm, CommentForm
@@ -93,6 +93,8 @@ class BookListView(ListView):
             qs = qs.filter(price__gte=int(min_price))
         if max_price and max_price.isdigit():
             qs = qs.filter(price__lte=int(max_price))
+
+        print(">> queryset ordering:", qs.query)
 
         return qs.distinct()
 
@@ -391,3 +393,11 @@ class AuthorDetailView(DetailView):
         context = self.get_context_data()
         context["form"] = form
         return self.render_to_response(context)
+
+
+class PublisherListView(View):
+    pass
+
+
+class PublisherDetailView(View):
+    pass

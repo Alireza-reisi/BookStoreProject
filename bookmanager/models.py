@@ -298,6 +298,9 @@ class Publisher(models.Model):
 
         super().save(*args, **kwargs)
 
+    def get_absolute_url(self):
+        return reverse("bookmanager:publisher_detail", args=[self.slug])
+
 
 class Book(models.Model):
     PRODUCT_TYPE_CHOICES = (

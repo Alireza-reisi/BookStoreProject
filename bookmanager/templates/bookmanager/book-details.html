@@ -21,7 +21,7 @@
                 <li class="chevron"><span class="fa fa-chevron-left"></span></li>
                 <li>
                 <li>
-                    <a href="categories.html" class="breadcrumb-link">دسته بندی کتب</a>
+                    <a href="{% url 'bookmanager:book_list' %}" class="breadcrumb-link">کتاب ها</a>
                 </li>
                 <li class="chevron"><span class="fa fa-chevron-left"></span></li>
                 <li>
@@ -62,7 +62,7 @@
                                     {% if book.translator %}
                                     <p>مترجم: <span>{{ book.translator }}</span></p>
                                     {% endif %}
-                                    <p>ناشر: <a href="#" target="_self">{{ book.publisher.name }}</a></p>
+                                    <p>ناشر: <a href="{{ book.publisher.get_absolute_url }}" target="_self">{{ book.publisher.name }}</a></p>
                                     <div class="price">
                                         {% if book.discount_price > 0 %}
                                         <p>

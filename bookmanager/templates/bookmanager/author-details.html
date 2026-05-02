@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load humanize %}
 
 {% block title %}
 {{ author.name }}
@@ -148,188 +149,49 @@
                 <div class="row">
                     <div class="col-xl-12">
                         <div class="author-books-box">
+                            {% for book in author.books.all %}
                             <div class="properties pb-20">
                                 <div class="properties-card">
                                     <div class="properties-img">
-                                        <a href="book-details.html"><img src="img/book/author-book-1.jpg"
-                                                                         alt=""></a>
+                                        <a href="{{ book.get_absolute_url }}"><img src="{{ book.image.url }}"
+                                                                                   alt="{{book.english_title}}"></a>
                                     </div>
                                     <div class="properties-caption">
-                                        <h3><a href="book-details.html">اعتماد به نفس</a></h3>
+                                        <h3><a href="{{ book.get_absolute_url }}">{{ book.title }}</a></h3>
                                         <div class="properties-footer">
                                             <div class="review">
-                                                <div class="rating">
-                                                    <i class="fas fa-star"></i>
-                                                    <i class="fas fa-star"></i>
-                                                    <i class="fas fa-star"></i>
-                                                    <i class="fas fa-star"></i>
-                                                    <i class="fas fa-star-half-alt"></i>
-                                                </div>
-                                                <p>(<span>12</span> نظر)</p>
+                                                <!-- <div class="rating">-->
+                                                <!--     <i class="fas fa-star"></i>-->
+                                                <!--     <i class="fas fa-star"></i>-->
+                                                <!--     <i class="fas fa-star"></i>-->
+                                                <!--     <i class="fas fa-star"></i>-->
+                                                <!--     <i class="fas fa-star-half-alt"></i>-->
+                                                <!-- </div>-->
+                                                <p>(<span>{{ book.comments.count }}</span> نظر)</p>
                                             </div>
                                             <div class="price">
-                                                <p>19.900<span>تومان</span></p>
+                                                {% if book.discount_price > 0 %}
+                                                    <p>
+                                                        <del>{{ book.price|floatformat:0|intcomma }}</del>
+                                                        <span class="text-danger">
+                                                            {{ book.final_price|floatformat:0|intcomma }} تومان
+                                                        </span>
+                                                        <small class="badge bg-success">
+                                                            {{ book.discount_price }}٪ تخفیف
+                                                        </small>
+                                                    </p>
+                                                {% else %}
+                                                    <p>{{ book.price|floatformat:0|intcomma }}<span>تومان</span></p>
+                                                {% endif %}
+
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                            <div class="properties pb-20">
-                                <div class="properties-card">
-                                    <div class="properties-img">
-                                        <a href="book-details.html"><img src="img/book/author-book-2.jpg"
-                                                                         alt=""></a>
-                                    </div>
-                                    <div class="properties-caption">
-                                        <h3><a href="book-details.html">چگونه به اینجا رسیدم؟</a></h3>
-                                        <div class="properties-footer">
-                                            <div class="review">
-                                                <div class="rating">
-                                                    <i class="fas fa-star"></i>
-                                                    <i class="fas fa-star"></i>
-                                                    <i class="fas fa-star"></i>
-                                                    <i class="fas fa-star"></i>
-                                                    <i class="fas fa-star-half-alt"></i>
-                                                </div>
-                                                <p>(<span>12</span> نظر)</p>
-                                            </div>
-                                            <div class="price">
-                                                <p>59.900<span>تومان</span></p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="properties pb-20">
-                                <div class="properties-card">
-                                    <div class="properties-img">
-                                        <a href="book-details.html"><img src="img/book/author-book-3.jpg"
-                                                                         alt=""></a>
-                                    </div>
-                                    <div class="properties-caption">
-                                        <h3><a href="book-details.html">رازهایی درباره زنان</a></h3>
-                                        <div class="properties-footer">
-                                            <div class="review">
-                                                <div class="rating">
-                                                    <i class="fas fa-star"></i>
-                                                    <i class="fas fa-star"></i>
-                                                    <i class="fas fa-star"></i>
-                                                    <i class="fas fa-star"></i>
-                                                    <i class="fas fa-star-half-alt"></i>
-                                                </div>
-                                                <p>(<span>12</span> نظر)</p>
-                                            </div>
-                                            <div class="price">
-                                                <p>72.000<span>تومان</span></p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="properties pb-20">
-                                <div class="properties-card">
-                                    <div class="properties-img">
-                                        <a href="book-details.html"><img src="img/book/author-book-4.jpg"
-                                                                         alt=""></a>
-                                    </div>
-                                    <div class="properties-caption">
-                                        <h3><a href="book-details.html">اعتماد به نفس</a></h3>
-                                        <div class="properties-footer">
-                                            <div class="review">
-                                                <div class="rating">
-                                                    <i class="fas fa-star"></i>
-                                                    <i class="fas fa-star"></i>
-                                                    <i class="fas fa-star"></i>
-                                                    <i class="fas fa-star"></i>
-                                                    <i class="fas fa-star-half-alt"></i>
-                                                </div>
-                                                <p>(<span>12</span> نظر)</p>
-                                            </div>
-                                            <div class="price">
-                                                <p>69.000<span>تومان</span></p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="properties pb-20">
-                                <div class="properties-card">
-                                    <div class="properties-img">
-                                        <a href="book-details.html"><img src="img/book/author-book-5.jpg"
-                                                                         alt=""></a>
-                                    </div>
-                                    <div class="properties-caption">
-                                        <h3><a href="book-details.html">قوانین روابط موفق</a></h3>
-                                        <div class="properties-footer">
-                                            <div class="review">
-                                                <div class="rating">
-                                                    <i class="fas fa-star"></i>
-                                                    <i class="fas fa-star"></i>
-                                                    <i class="fas fa-star"></i>
-                                                    <i class="fas fa-star"></i>
-                                                    <i class="fas fa-star-half-alt"></i>
-                                                </div>
-                                                <p>(<span>12</span> نظر)</p>
-                                            </div>
-                                            <div class="price">
-                                                <p>42.000<span>تومان</span></p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="properties pb-20">
-                                <div class="properties-card">
-                                    <div class="properties-img">
-                                        <a href="book-details.html"><img src="img/book/author-book-6.jpg"
-                                                                         alt=""></a>
-                                    </div>
-                                    <div class="properties-caption">
-                                        <h3><a href="book-details.html">لحظه های ناب و حقیقی</a></h3>
-                                        <div class="properties-footer">
-                                            <div class="review">
-                                                <div class="rating">
-                                                    <i class="fas fa-star"></i>
-                                                    <i class="fas fa-star"></i>
-                                                    <i class="fas fa-star"></i>
-                                                    <i class="fas fa-star"></i>
-                                                    <i class="fas fa-star-half-alt"></i>
-                                                </div>
-                                                <p>(<span>12</span> نظر)</p>
-                                            </div>
-                                            <div class="price">
-                                                <p>45.000<span>تومان</span></p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="properties pb-20">
-                                <div class="properties-card">
-                                    <div class="properties-img">
-                                        <a href="book-details.html"><img src="img/book/author-book-7.jpg"
-                                                                         alt=""></a>
-                                    </div>
-                                    <div class="properties-caption">
-                                        <h3><a href="book-details.html">روابط رمانتیک</a></h3>
-                                        <div class="properties-footer">
-                                            <div class="review">
-                                                <div class="rating">
-                                                    <i class="fas fa-star"></i>
-                                                    <i class="fas fa-star"></i>
-                                                    <i class="fas fa-star"></i>
-                                                    <i class="fas fa-star"></i>
-                                                    <i class="fas fa-star-half-alt"></i>
-                                                </div>
-                                                <p>(<span>12</span> نظر)</p>
-                                            </div>
-                                            <div class="price">
-                                                <p>35.900<span>تومان</span></p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                            {% empty %}
+
+                            {% endfor %}
                         </div>
                     </div>
                 </div>
