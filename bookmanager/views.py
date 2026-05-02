@@ -45,6 +45,15 @@ class BookListView(ListView):
     def get_queryset(self):
         qs = Book.objects.all()
 
+        # سرچ هدر
+        query = self.request.GET.get("Search")
+        if query:
+            qs = qs.filter(
+                Q(title__icontains=query) |
+                Q(author__name__icontains=query) |
+                Q(publisher__name__icontains=query)
+            ).distinct()
+
         # پایه annotation برای همه
         qs = qs.annotate(comments_count=Count("comments"))
 
@@ -93,8 +102,6 @@ class BookListView(ListView):
             qs = qs.filter(price__gte=int(min_price))
         if max_price and max_price.isdigit():
             qs = qs.filter(price__lte=int(max_price))
-
-        print(">> queryset ordering:", qs.query)
 
         return qs.distinct()
 

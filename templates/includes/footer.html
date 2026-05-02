@@ -30,34 +30,47 @@
                         </div>
                     </div>
                 </div>
+                {% for category in categories %}
+                {% if forloop.counter0|divisibleby:6 %}
                 <div class="col-xl-2 col-lg-3 col-md-4 col-sm-5">
                     <div class="single-footer-caption mb-50">
                         <div class="footer-tittle">
+
+                            {% if forloop.first %}
                             <h4>دسته بندی موضوعی</h4>
+                            {% else %}
+                            <h4 style="visibility:hidden">.</h4>
+                            {% endif %}
+
                             <ul>
-                                <li><a href="categories.html">تاریخ</a></li>
-                                <li><a href="categories.html">روانشناسی</a></li>
-                                <li><a href="categories.html">کسب و کار</a></li>
-                                <li><a href="categories.html">علوم</a></li>
-                                <li><a href="categories.html">رمان</a></li>
+                                {% endif %}
+
+                                <li>
+                                    <a href="{{ category.get_absolute_url }}">
+                                        {{ category.name }}
+                                    </a>
+                                </li>
+
+                                {% if forloop.counter|divisibleby:6 or forloop.last %}
                             </ul>
                         </div>
                     </div>
                 </div>
-                <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6">
-                    <div class="single-footer-caption mb-50">
-                        <div class="footer-tittle">
-                            <h4>&nbsp;</h4>
-                            <ul>
-                                <li><a href="categories.html">اقتصادی</a></li>
-                                <li><a href="categories.html">مذهبی</a></li>
-                                <li><a href="categories.html">جغرافیا</a></li>
-                                <li><a href="categories.html">علوم سیاسی</a></li>
-                                <li><a href="categories.html">بیوگرافی</a></li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
+                {% endif %}
+                {% endfor %}
+                <!--                <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6">-->
+                <!--                    <div class="single-footer-caption mb-50">-->
+                <!--                        <div class="footer-tittle">-->
+                <!--                            <ul>-->
+                <!--                                <li><a href="categories.html">اقتصادی</a></li>-->
+                <!--                                <li><a href="categories.html">مذهبی</a></li>-->
+                <!--                                <li><a href="categories.html">جغرافیا</a></li>-->
+                <!--                                <li><a href="categories.html">علوم سیاسی</a></li>-->
+                <!--                                <li><a href="categories.html">بیوگرافی</a></li>-->
+                <!--                            </ul>-->
+                <!--                        </div>-->
+                <!--                    </div>-->
+                <!--                </div>-->
                 <div class="col-xl-3 col-lg-4 col-md-4 col-sm-6">
                     <div class="single-footer-caption mb-50">
                         <div class="footer-tittle">

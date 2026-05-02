@@ -11,15 +11,16 @@
 
                                 <div class="logo">
                                     <a href="{% url 'pages:home' %}"><img src="{% static 'img/logo/logo.png' %}"
-                                                                                alt=""></a>
+                                                                          alt="Bookino"></a>
                                 </div>
 
-                                <form action="#" class="form-box">
+                                <form action="{% url 'bookmanager:book_list' %}" method="get" class="form-box">
                                     <input type="text" name="Search"
-                                           placeholder="جستجوی کتاب براساس نویسنده یا انتشارات">
-                                    <div class="search-icon">
+                                           placeholder="جستجوی کتاب براساس نام، نویسنده یا انتشارات">
+                                    <button type="submit" class="search-icon">
                                         <i class="ti-search"></i>
-                                    </div>
+                                    </button>
+
                                 </form>
                             </div>
                             <div class="header-info-right d-flex align-items-center">
@@ -44,7 +45,7 @@
 
                         <div class="logo2">
                             <a href="{% url 'pages:home' %}"><img src="{% static 'img/logo/logo.png' %}"
-                                                                        alt=""></a>
+                                                                  alt=""></a>
                         </div>
 
                         <div class="main-menu text-center d-none d-lg-block">
@@ -58,19 +59,19 @@
                                             <div class="mega-head">
                                                 {% for category in categories %}
 
-                                                    {% if forloop.counter0|divisibleby:3 %}
-                                                        <div class="col">
-                                                            <ul>
-                                                    {% endif %}
-                                                            <li>
-                                                                <a href="#">
-                                                                    {{ category.name }}
-                                                                </a>
-                                                            </li>
-                                                    {% if forloop.counter|divisibleby:3 or forloop.last %}
-                                                            </ul>
-                                                        </div>
-                                                    {% endif %}
+                                                {% if forloop.counter0|divisibleby:3 %}
+                                                <div class="col">
+                                                    <ul>
+                                                        {% endif %}
+                                                        <li>
+                                                            <a href="{{ category.get_absolute_url }}">
+                                                                {{ category.name }}
+                                                            </a>
+                                                        </li>
+                                                        {% if forloop.counter|divisibleby:3 or forloop.last %}
+                                                    </ul>
+                                                </div>
+                                                {% endif %}
 
                                                 {% endfor %}
                                             </div>
@@ -89,7 +90,7 @@
                                             <li><a href="cart.html">سبد خرید</a></li>
                                             <li><a href="checkout.html">تسویه حساب</a></li>
                                             <li><a href="categories.html">دسته بندی</a></li>
-                                            <li><a href="author.html">نویسندگان</a></li>
+                                            <li><a href="{% url 'bookmanager:author_list' %}">نویسندگان</a></li>
                                             <li><a href="publisher.html">ناشران</a></li>
                                         </ul>
                                     </li>

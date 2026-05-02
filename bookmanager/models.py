@@ -248,6 +248,10 @@ class Category(models.Model):
     def __str__(self):
         return self.name
 
+    def get_absolute_url(self):
+        url = reverse("bookmanager:book_list")
+        return f"{url}?categories={self.id}"
+
 
 class Publisher(models.Model):
     name = models.CharField(max_length=150, verbose_name="نام ناشر",
