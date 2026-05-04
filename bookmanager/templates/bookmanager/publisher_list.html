@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}
+publishers
+{% endblock %}
+
+{% block content %}
+<main>
+
+    <!-- Breadcrumb -->
+    <div class="breadcrumb-items">
+        <div class="row">
+            <ul class="breadcrumb">
+                <li>
+                    <a href="{% url 'pages:home' %}" class="breadcrumb-link">صفحه اصلی</a>
+                </li>
+                <li class="chevron"><span class="fa fa-chevron-left"></span></li>
+                <li>
+                    <a href="{% url 'bookmanager:publisher_list' %}" class="breadcrumb-active">ناشران</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <div class="container">
+        <div class="row">
+            <div class="col-xl-12">
+                <div class="slider-area">
+                    <div class="slider-height2 slider-bg5 d-flex align-items-center justify-content-center">
+                        <div class="hero-caption hero-caption2">
+                            <h2>ناشران</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Publishers Grid -->
+    <section class="publisher_area section-padding">
+        <div class="container">
+
+            <div id="publisher-container">
+
+                {% include "bookmanager/partials/publisher_list_items.html" %}
+
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Newsletter -->
+    {% include 'bookmanager/partials/newsletter_area.html' %}
+
+</main>
+<script>
+
+    document.addEventListener("click", function (e) {
+
+        if (e.target.classList.contains("ajax-page")) {
+            e.preventDefault()
+
+            let url = e.target.getAttribute("href")
+
+            fetch(url, {
+                headers: {
+                    "X-Requested-With": "XMLHttpRequest"
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById("publisher-container").innerHTML = data.html
+                })
+
+        }
+
+    })
+
+</script>
+
+{% endblock %}

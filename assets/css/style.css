@@ -8832,3 +8832,69 @@ a.text-muted:focus {
     color: #aaa;
     background: #f5f5f5;
 }
+
+
+/*publishers list page*/
+
+.publisher-card {
+    transition: all 0.3s ease;
+    border: 1px solid #eee !important;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.publisher-card:hover {
+    transform: translateY(-5px);
+    shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    border-color: #227087 !important; /* رنگ برند */
+}
+
+.img-container {
+    height: 200px;
+    overflow: hidden;
+    background: #f8f9fa;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.img-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    padding: 15px;
+}
+
+.publisher-title {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #2d2d2d;
+    height: 3rem;
+    overflow: hidden;
+}
+
+.publisher-desc {
+    font-size: 0.9rem;
+    color: #666;
+    height: 4.5rem;
+    overflow: hidden;
+}
+
+.pagination .page-link {
+    color: #00A4A6;
+    border-radius: 8px !important;
+    margin: 0 3px;
+    border: 1px solid #eee;
+    padding: 8px 16px;
+}
+
+.pagination .page-item.active .page-link {
+    background-color: #227087;
+    border-color: #227087;
+    color: white;
+}
+
+.pagination .page-link:hover {
+    background-color: #00A4A6;
+    color: #fff !important;
+}

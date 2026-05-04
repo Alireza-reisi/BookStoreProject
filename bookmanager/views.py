@@ -402,8 +402,25 @@ class AuthorDetailView(DetailView):
         return self.render_to_response(context)
 
 
-class PublisherListView(View):
-    pass
+class PublisherListView(ListView):
+    model = Publisher
+    template_name = "bookmanager/publisher_list.html"
+    context_object_name = "publishers"
+    paginate_by = 9
+
+    def get_queryset(self):
+        return Publisher.objects.all().order_by("name")
+
+    def render_to_response(self, context, **response_kwargs):
+        if self.request.headers.get("x-requested-with") == "XMLHttpRequest":
+            html = render_to_string(
+                "bookmanager/partials/publisher_list_items.html",
+                context,
+                request=self.request
+            )
+            return JsonResponse({"html": html})
+
+        return super().render_to_response(context, **response_kwargs)
 
 
 class PublisherDetailView(DetailView):

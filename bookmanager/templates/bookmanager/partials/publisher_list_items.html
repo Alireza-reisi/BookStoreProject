@@ -1,0 +1,79 @@
+{% load static %}
+
+<div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+    {% for publisher in publishers %}
+    <div class="col">
+
+        <!-- کل کارت لینک‌دار شده با استفاده از get_absolute_url -->
+        <a href="{{ publisher.get_absolute_url }}" class="text-decoration-none text-dark">
+            <div class="card h-100 publisher-card shadow-sm">
+
+                <!-- تصویر ناشر -->
+                <div class="img-container">
+                    {% if publisher.logo %}
+                    <img src="{{ publisher.logo.url }}" alt="{{ publisher.name }}">
+                    {% else %}
+                    <img src="{% static 'img/default_publisher.png' %}" alt="No Image">
+                    {% endif %}
+                </div>
+
+                <!-- محتوای کارت -->
+                <div class="card-body text-center d-flex flex-column">
+                    <h5 class="publisher-title">{{ publisher.name }}</h5>
+
+                    <p class="publisher-desc card-text">
+                        {{ publisher.description|truncatewords:20 }}
+                    </p>
+
+                    <div class="mt-auto pt-3 border-top">
+                        <span class="badge bg-light text-dark border">
+                            <i class="fa fa-book text-primary"></i> {{ publisher.books.count }} کتاب
+                        </span>
+                    </div>
+                </div>
+
+            </div>
+        </a>
+
+    </div>
+    {% empty %}
+    <div class="col-12 text-center py-5">
+        <p class="lead text-muted">هیچ ناشری یافت نشد.</p>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- بخش صفحه‌بندی -->
+{% if is_paginated %}
+<nav class="mt-5 mb-4">
+    <ul class="pagination justify-content-center">
+        {% if page_obj.has_previous %}
+        <li class="page-item">
+            <a class="page-link ajax-page" href="?page={{ page_obj.previous_page_number }}">
+                <i class="fa fa-chevron-right"></i> قبلی
+            </a>
+        </li>
+        {% endif %}
+
+        {% for num in paginator.page_range %}
+        {% if num == page_obj.number %}
+        <li class="page-item active">
+            <span class="page-link">{{ num }}</span>
+        </li>
+        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+        <li class="page-item">
+            <a class="page-link ajax-page" href="?page={{ num }}">{{ num }}</a>
+        </li>
+        {% endif %}
+        {% endfor %}
+
+        {% if page_obj.has_next %}
+        <li class="page-item">
+            <a class="page-link ajax-page" href="?page={{ page_obj.next_page_number }}">
+                بعدی <i class="fa fa-chevron-left"></i>
+            </a>
+        </li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
