@@ -1,0 +1,199 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}
+{{ publisher.name }}
+{% endblock %}
+
+{% block content %}
+<main>
+
+    <div class="breadcrumb-items">
+        <div class="row">
+            <ul class="breadcrumb">
+                <li>
+                    <a href="{% url 'pages:home' %}" class="breadcrumb-link">صفحه اصلی</a>
+                </li>
+
+                <li class="chevron"><span class="fa fa-chevron-left"></span></li>
+
+                <li>
+                    <a href="{% url 'bookmanager:publisher_list' %}" class="breadcrumb-link">ناشران</a>
+                </li>
+
+                <li class="chevron"><span class="fa fa-chevron-left"></span></li>
+
+                <li>
+                    <span class="breadcrumb-active">{{ publisher.name }}</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+
+    <div class="single-author">
+        <div class="container">
+            <div class="row">
+                <div class="col-xl-12">
+
+                    <div class="single-author-row d-flex align-items-center mb-0">
+                        <div class="single-author-img">
+                            {% if publisher.logo %}
+                            <img src="{{ publisher.logo.url }}" alt="{{ publisher.english_name }}">
+                            {% else %}
+                            <img src="{% static 'img/default-publisher.png' %}" alt="{{ publisher.name }}">
+                            {% endif %}
+                        </div>
+
+                        <div class="author-caption">
+                            <div class="author-title">
+                                <h1>آشنایی با ناشر</h1>
+                            </div>
+
+                            <div class="meta">
+                                <p>نام ناشر: <span>{{ publisher.name }}</span></p>
+
+                                <p>
+                                    تعداد کتاب در سایت:
+                                    <span>{{ publisher.books.count }}</span>
+                                </p>
+
+                                {% if publisher.website %}
+                                <p>
+                                    <i class="fas fa-globe"></i>
+                                    <a href="{{ publisher.website }}" target="_blank" rel="noopener">
+                                        وب‌سایت ناشر
+                                    </a>
+                                </p>
+
+                                {% endif %}
+                            </div>
+
+                            <div class="publisher-btn">
+                                <a href="#books" class="white-btn mr-10">
+                                    کتاب‌های این ناشر
+                                </a>
+                            </div>
+
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <section class="our-client section-padding best-selling">
+        <div class="container">
+
+            <div class="row">
+                <div class="offset-xl-1 col-xl-10">
+                    <div class="nav-button f-right">
+                        <nav>
+                            <div class="nav nav-tabs" role="tablist">
+                                <a class="nav-link active" data-bs-toggle="tab">
+                                    اطلاعات ناشر
+                                </a>
+                            </div>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="container">
+            <div class="row">
+                <div class="desc-tab offset-xl-1 col-lg-9">
+                    <p>{{ publisher.description }}</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <section class="author-books section-bg">
+        <div class="container">
+
+            <div class="row justify-content-center">
+                <div class="col-xl-7 col-lg-8">
+                    <div class="section-tittle text-center mb-55" id="books">
+                        <h2>کتاب‌های این ناشر</h2>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-xl-12">
+                    <div class="author-books-box">
+
+                        {% for book in publisher.books.all %}
+                        <div class="properties pb-20">
+                            <div class="properties-card">
+
+                                <div class="properties-img">
+                                    <a href="{{ book.get_absolute_url }}">
+                                        <img src="{{ book.image.url }}" alt="{{ book.english_title }}">
+                                    </a>
+                                </div>
+
+                                <div class="properties-caption">
+
+                                    <h3>
+                                        <a href="{{ book.get_absolute_url }}">
+                                            {{ book.title }}
+                                        </a>
+                                    </h3>
+
+                                    <div class="properties-footer">
+
+                                        <div class="price">
+                                            {% if book.discount_price > 0 %}
+                                            <p>
+                                                <del>
+                                                    {{ book.price|floatformat:0|intcomma }}
+                                                </del>
+
+                                                <span class="text-danger">
+                                                {{ book.final_price|floatformat:0|intcomma }} تومان
+                                            </span>
+
+                                                <small class="badge bg-success">
+                                                    {{ book.discount_price }}٪ تخفیف
+                                                </small>
+                                            </p>
+                                            {% else %}
+                                            <p>
+                                                {{ book.price|floatformat:0|intcomma }}
+                                                <span>تومان</span>
+                                            </p>
+                                            {% endif %}
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+                        </div>
+
+                        {% empty %}
+                        <div class="text-center p-5">
+                            <p>هنوز کتابی برای این ناشر ثبت نشده است.</p>
+                        </div>
+                        {% endfor %}
+
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+
+    {% include "bookmanager/partials/newsletter_area.html" %}
+
+</main>
+{% endblock %}

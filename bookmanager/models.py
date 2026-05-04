@@ -431,7 +431,7 @@ class Book(models.Model):
         "Author",
         on_delete=models.CASCADE,
         related_name="books",
-        verbose_name="نویسنده"
+        verbose_name="نویسنده",
     )
 
     publisher = models.ForeignKey(
@@ -439,6 +439,7 @@ class Book(models.Model):
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
+        related_name='books',
         verbose_name="ناشر"
     )
 

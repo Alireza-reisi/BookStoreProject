@@ -144,7 +144,7 @@ class BookListView(ListView):
 
 class BookDetailView(DetailView):
     model = Book
-    template_name = "bookmanager/book-details.html"
+    template_name = "bookmanager/book_details.html"
     context_object_name = "book"
 
     def get(self, request, *args, **kwargs):
@@ -307,7 +307,7 @@ class AuthorListView(ListView):
 
 class AuthorDetailView(DetailView):
     model = Author
-    template_name = "bookmanager/author-details.html"
+    template_name = "bookmanager/author_details.html"
     context_object_name = "author"
 
     def get(self, request, *args, **kwargs):
@@ -406,5 +406,19 @@ class PublisherListView(View):
     pass
 
 
-class PublisherDetailView(View):
-    pass
+class PublisherDetailView(DetailView):
+    model = Publisher
+    template_name = "bookmanager/publisher_details.html"
+    context_object_name = "publisher"
+
+    def get_queryset(self):
+        return Publisher.objects.prefetch_related("books")
+
+    def get_object(self, queryset=None):
+        slug = self.kwargs.get("slug")
+        logger.info(f"Fetching publisher detail page for slug: {slug}")
+
+        return get_object_or_404(
+            queryset or self.get_queryset(),
+            slug=slug
+        )
