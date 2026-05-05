@@ -1,15 +1,18 @@
 from django.db import models
-from django.contrib.auth.models import User
 from django.utils.text import slugify
 from django.urls import reverse
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
 from django_countries.fields import CountryField
 from django.core.validators import MinValueValidator, MaxValueValidator
+from django.conf import settings
 
 
 class Comment(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="book_comments", verbose_name="کاربر",
+    user = models.ForeignKey(settings.AUTH_USER_MODEL,
+                             on_delete=models.SET_NULL,
+                             null=True,
+                             related_name="book_comments", verbose_name="کاربر",
                              error_messages={
                                  "blank": "این فیلد اجباری است."
                              }
@@ -52,7 +55,9 @@ class CommentReaction(models.Model):
         ('like', 'Like'),
         ('dislike', 'Dislike'),
     ]
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL,
+                             on_delete=models.SET_NULL,
+                             null=True,)
     comment = models.ForeignKey("Comment", on_delete=models.CASCADE, related_name="reactions")
     reaction = models.CharField(max_length=10, choices=REACTION_CHOICES)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -238,7 +243,7 @@ class Category(models.Model):
         ordering = ["name"]
 
     # def get_absolute_url(self):
-        # return reverse('bookmanager:category_page', args=[self.slug])
+    # return reverse('bookmanager:category_page', args=[self.slug])
 
     def save(self, *args, **kwargs):
         if not self.slug:
@@ -450,7 +455,7 @@ class Book(models.Model):
     )
 
     creator = models.ForeignKey(
-        User,
+        settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,
         null=True,
         verbose_name="ایجادکننده"

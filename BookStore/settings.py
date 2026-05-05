@@ -38,7 +38,6 @@ INSTALLED_APPS = [
     # authur nationality
     "django_countries",
 
-
 ]
 
 MIDDLEWARE = [
@@ -160,3 +159,5 @@ LOGGING = {
         },
     },
 }
+
+AUTH_USER_MODEL = "account.User"
