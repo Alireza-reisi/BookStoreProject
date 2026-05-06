@@ -8898,3 +8898,7 @@ a.text-muted:focus {
     background-color: #00A4A6;
     color: #fff !important;
 }
+
+.left-align {
+    justify-content: center !important;
+}

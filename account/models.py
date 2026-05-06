@@ -2,6 +2,9 @@ from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 
 
+# ------------------------------------------
+# ---------- customize User model ----------
+# ------------------------------------------
 class UserManager(BaseUserManager):
     def create_user(self, phone, password=None, **extra_fields):
         if not phone:
@@ -57,3 +60,20 @@ class User(AbstractBaseUser, PermissionsMixin):
     @property
     def is_staff(self):
         return self.is_admin
+
+
+# ------------------------------------------
+# --------- OTP login/signup model ---------
+# ------------------------------------------
+
+class OTP(models.Model):
+    phone = models.CharField(max_length=11, unique=True, verbose_name="شماره موبایل")
+    verification_code = models.CharField(max_length=6, verbose_name="کد تایید")
+    update_time = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = 'اعتبار سنجی پیامکی'
+        verbose_name_plural = 'اعتبار سنجی پیامکی'
+
+    def __str__(self):
+        return self.phone

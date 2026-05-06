@@ -2,8 +2,12 @@ from django.contrib.auth.models import Group
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from .forms import UserCreationForm, UserChangeForm
-from .models import User
+from .models import User, OTP
 
+
+# ------------------------------------------
+# ---------- customize User admin ----------
+# ------------------------------------------
 
 class UserAdmin(BaseUserAdmin):
     form = UserChangeForm
@@ -31,3 +35,28 @@ class UserAdmin(BaseUserAdmin):
 
 admin.site.register(User, UserAdmin)
 admin.site.unregister(Group)
+
+
+# ------------------------------------------
+# --------- OTP login/signup model ---------
+# ------------------------------------------
+
+@admin.register(OTP)
+class OTPAdmin(admin.ModelAdmin):
+    list_display = ['phone', 'verification_code']
+    list_filter = ['phone', ]
+
+    fieldsets = [
+        ("اطلاعات", {"fields": ["phone", "verification_code", ]}),
+    ]
+
+    add_fieldsets = [
+        (None, {
+            "classes": ["wide"],
+            "fields": ["phone", "verification_code", ]
+        })
+    ]
+
+    search_fields = ['phone']
+    ordering = ["-update_time"]
+    filter_horizontal = []

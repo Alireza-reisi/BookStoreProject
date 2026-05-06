@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}ورود/ثبت نام{% endblock %}
+
+{# عدم نمایش هدر #}
+{% block show_header %}{% endblock show_header %}
+
+{# عدم نمایش فوتر #}
+{% block show_footer %}{% endblock show_footer %}
+
+{% block content %}
+<main class="login-bg">
+
+    <div class="breadcrumb-items">
+        <div class="row">
+            <ul class="breadcrumb">
+                <li>
+                    <a href="{% url 'pages:home' %}" class="breadcrumb-link">صفحه اصلی</a>
+                </li>
+                <li class="chevron"><span class="fa fa-chevron-left"></span></li>
+                <li>
+                    <span class="breadcrumb-active">ثبت نام/ورود</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="login-form-area">
+        <div class="login-form">
+
+            <div class="login-heading">
+                <span>ثبت نام/ورود</span>
+                <p>برای دسترسی به سایت وارد شوید</p>
+            </div>
+
+            <form method="post">
+                {% csrf_token %}
+
+                <div class="input-box">
+                    <div class="single-input-fields">
+                        {{ form.phone.label_tag }}
+                        {{ form.phone }}
+
+                        {% if form.phone.errors %}
+                        <p class="text-danger small">{{ form.phone.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="login-footer left-align">
+                    <button type="submit" class="submit-btn3">ارسال کد تأیید</button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+
+</main>
+{% endblock %}

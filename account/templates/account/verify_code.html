@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}تأیید کد{% endblock %}
+
+{% block show_header %}{% endblock show_header %}
+{% block show_footer %}{% endblock show_footer %}
+
+{% block content %}
+<main class="login-bg">
+
+    <div class="breadcrumb-items">
+        <div class="row">
+            <ul class="breadcrumb">
+                <li>
+                    <a href="{% url 'pages:home' %}" class="breadcrumb-link">صفحه اصلی</a>
+                </li>
+                <li class="chevron"><span class="fa fa-chevron-left"></span></li>
+                <li>
+                    <span class="breadcrumb-active">تأیید کد</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="login-form-area">
+        <div class="login-form">
+
+            <div class="login-heading">
+                <span>تأیید کد پیامک شده</span>
+                <p>کد ارسال‌شده به شماره {{ request.session.user_phone }} را وارد کنید</p>
+            </div>
+
+            <form method="post">
+                {% csrf_token %}
+
+                <div class="input-box">
+                    <div class="single-input-fields">
+                        {{ form.verification_code.label_tag }}
+                        {{ form.verification_code }}
+
+                        {% if form.verification_code.errors %}
+                        <p class="text-danger small">
+                            {{ form.verification_code.errors.0 }}
+                        </p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- تایمر -->
+                <div class="text-center mt-3">
+                    <p id="timer-text">
+                        ارسال مجدد کد تا <span id="countdown">02:00</span>
+                    </p>
+
+                    <a href="{% url 'account:otp_send_code' %}"
+                       id="resend-btn"
+                       class="btn btn-link p-0"
+                       style="display:none;">
+                        ارسال مجدد کد
+                    </a>
+                </div>
+
+                <div class="login-footer left-align mt-4">
+                    <button type="submit" class="submit-btn3">
+                        تأیید و ورود
+                    </button>
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+
+</main>
+
+<!-- ✅ اسکریپت تایمر 2 دقیقه‌ای -->
+<script>
+    let duration = 120; // 2 minutes in seconds
+    const countdownElement = document.getElementById("countdown");
+    const resendBtn = document.getElementById("resend-btn");
+    const timerText = document.getElementById("timer-text");
+
+    function updateTimer() {
+        let minutes = Math.floor(duration / 60);
+        let seconds = duration % 60;
+
+        minutes = minutes < 10 ? "0" + minutes : minutes;
+        seconds = seconds < 10 ? "0" + seconds : seconds;
+
+        countdownElement.textContent = minutes + ":" + seconds;
+
+        if (duration <= 0) {
+            clearInterval(interval);
+            timerText.style.display = "none";
+            resendBtn.style.display = "inline-block";
+        }
+
+        duration--;
+    }
+
+    updateTimer();
+    const interval = setInterval(updateTimer, 1000);
+</script>
+
+{% endblock %}

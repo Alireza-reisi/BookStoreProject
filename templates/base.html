@@ -10,21 +10,27 @@
         {% endblock %}
     </title>
 </head>
+<body>
 
-
+{# بلوکی برای کنترل مخفی کردن هدر در ورود و ثبت نام #}
+{% block show_header %}
 <header>
     {% include 'includes/header.html' %}
 </header>
+{% endblock show_header %}
 
 
-<body>
 {% block content %} {% endblock %}
 
+{# بلوکی برای کنترل مخفی کردن فوتر در ورود و ثبت نام #}
+{% block show_footer %}
 <footer>
     {% include 'includes/footer.html' %}
 </footer>
+{% endblock show_footer %}
+
 <div id="back-top">
-    <a title="Go to Top" href="#"> <i class="fas fa-level-up-alt"></i></a>
+    <a title="Go to Top" href=""> <i class="fas fa-level-up-alt"></i></a>
 </div>
 {% include 'includes/footer-links.html' %}
 </body>
