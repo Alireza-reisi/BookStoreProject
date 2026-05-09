@@ -1,5 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
+from django.dispatch import receiver
+from django.db.models.signals import pre_save, post_delete
+import os
 
 
 # ------------------------------------------
@@ -36,6 +39,17 @@ class UserManager(BaseUserManager):
 
 class User(AbstractBaseUser, PermissionsMixin):
     phone = models.CharField(max_length=11, unique=True, verbose_name="شماره تلفن")
+
+    first_name = models.CharField(max_length=100, blank=True, verbose_name="نام")
+    last_name = models.CharField(max_length=100, blank=True, verbose_name="نام خانوادگی")
+
+    image = models.ImageField(
+        upload_to='profiles/',
+        blank=True,
+        null=True,
+        verbose_name="تصویر پروفایل"
+    )
+
     is_active = models.BooleanField(default=True, verbose_name="فعال بودن")
     is_admin = models.BooleanField(default=False, verbose_name="ادمین")
     is_superuser = models.BooleanField(default=False, verbose_name="سوپر یوزر")
@@ -60,6 +74,34 @@ class User(AbstractBaseUser, PermissionsMixin):
     @property
     def is_staff(self):
         return self.is_admin
+
+    @property
+    def get_full_name(self):
+        return f"{self.first_name} {self.last_name}".strip()
+
+
+@receiver(pre_save, sender=User)
+def delete_old_profile_image(sender, instance, **kwargs):
+    if not instance.pk:
+        return  # کاربر جدید است
+
+    try:
+        old_user = User.objects.get(pk=instance.pk)
+    except User.DoesNotExist:
+        return
+
+    old_image = old_user.image
+    new_image = instance.image
+
+    # اگر عکس تغییر کرده باشد
+    if old_image and old_image != new_image:
+        old_image.delete(save=False)
+
+
+@receiver(post_delete, sender=User)
+def delete_user_profile_image(sender, instance, **kwargs):
+    if instance.image:
+        instance.image.delete(save=False)
 
 
 # ------------------------------------------

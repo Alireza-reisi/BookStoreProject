@@ -1,0 +1,191 @@
+{% load static %}
+
+<div class="sidebar-inner">
+
+    <div class="sidebar-user-box">
+        <div class="sidebar-user-avatar">
+            {% if request.user.image %}
+                <img src="{{ request.user.image.url }}" alt="{{ request.user }}">
+            {% else %}
+                <img src="{% static 'img/default-user.png' %}" alt="user">
+            {% endif %}
+        </div>
+
+        <div class="sidebar-user-info">
+            <h5>{{ request.user.get_full_name|default:"کاربر سایت" }}</h5>
+            <span>{{ request.user.phone }}</span>
+        </div>
+    </div>
+
+    <ul class="user-menu">
+
+        <!-- پروفایل -->
+        <li class="menu-group">
+            <a href="#"
+               class="menu-title single-link sidebar-link active"
+               data-url="{% url 'account:profile_info_section' %}">
+                پروفایل من
+            </a>
+        </li>
+
+        <!-- سفارشات -->
+        <li class="menu-group">
+            <button type="button" class="menu-title collapsible">
+                سفارشات
+            </button>
+
+            <ul class="submenu">
+                <li>
+                    <a href="#"
+                       class="sidebar-link"
+                       data-url="#">
+                        لیست سفارش‌ها
+                    </a>
+                </li>
+
+                <li>
+                    <a href="#"
+                       class="sidebar-link"
+                       data-url="#">
+                        پیگیری سفارش
+                    </a>
+                </li>
+
+                <li>
+                    <a href="#"
+                       class="sidebar-link"
+                       data-url="#">
+                        سفارش‌های لغو شده
+                    </a>
+                </li>
+            </ul>
+        </li>
+
+        <!-- کتاب‌ها -->
+        <li class="menu-group">
+
+            <button type="button" class="menu-title collapsible">
+                کتاب‌های خریداری شده
+            </button>
+
+            <ul class="submenu">
+
+                <li>
+                    <a href="#"
+                       class="sidebar-link"
+                       data-url="#">
+                        نسخه الکترونیکی
+                    </a>
+                </li>
+
+                <li>
+                    <a href="#"
+                       class="sidebar-link"
+                       data-url="#">
+                        کتاب‌های صوتی
+                    </a>
+                </li>
+
+                <li>
+                    <a href="#"
+                       class="sidebar-link"
+                       data-url="#">
+                        دانلودها
+                    </a>
+                </li>
+
+            </ul>
+
+        </li>
+
+        <!-- تیکت -->
+        <li class="menu-group">
+
+            <button type="button" class="menu-title collapsible">
+                تیکت پشتیبانی
+            </button>
+
+            <ul class="submenu">
+
+                <li>
+                    <a href="#"
+                       class="sidebar-link"
+                       data-url="#">
+                        ایجاد تیکت جدید
+                    </a>
+                </li>
+
+                <li>
+                    <a href="#"
+                       class="sidebar-link"
+                       data-url="#">
+                        مشاهده تیکت‌ها
+                    </a>
+                </li>
+
+            </ul>
+
+        </li>
+
+        <!-- علاقه‌مندی -->
+        <li class="menu-group">
+
+            <button type="button" class="menu-title collapsible">
+                علاقه‌مندی‌ها
+            </button>
+
+            <ul class="submenu">
+
+                <li>
+                    <a href="#"
+                       class="sidebar-link"
+                       data-url="#">
+                        لیست علاقه‌مندی‌ها
+                    </a>
+                </li>
+
+            </ul>
+
+        </li>
+
+        <!-- کیف پول -->
+        <li class="menu-group">
+
+            <button type="button" class="menu-title collapsible">
+                کیف پول
+            </button>
+
+            <ul class="submenu">
+
+                <li>
+                    <a href="#"
+                       class="sidebar-link"
+                       data-url="#">
+                        موجودی کیف پول
+                    </a>
+                </li>
+
+                <li>
+                    <a href="#"
+                       class="sidebar-link"
+                       data-url="#">
+                        تاریخچه تراکنش‌ها
+                    </a>
+                </li>
+
+            </ul>
+
+        </li>
+
+        <!-- خروج -->
+        <li class="menu-group logout-group">
+
+            <a href="" class="logout-link">
+                خروج از حساب
+            </a>
+
+        </li>
+
+    </ul>
+
+</div>

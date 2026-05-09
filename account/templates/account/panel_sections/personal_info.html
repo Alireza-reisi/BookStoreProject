@@ -1,0 +1,95 @@
+<h3 class="mb-4 fw-bold">پروفایل من</h3>
+
+
+<form id="profile-form" method="post" action="{% url 'account:profile_info_section' %}" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <div class="row g-4">
+
+        <div class="col-md-6">
+            <label class="form-label fw-semibold">نام</label>
+            <input type="text"
+                   name="first_name"
+                   value="{{ form.first_name.value|default_if_none:'' }}"
+                   class="form-control"
+                   readonly>
+        </div>
+
+
+        <div class="col-md-6">
+            <label class="form-label fw-semibold">نام خانوادگی</label>
+            <input type="text"
+                   name="last_name"
+                   value="{{ form.last_name.value|default_if_none:'' }}"
+                   class="form-control"
+                   readonly>
+        </div>
+
+
+        <div class="col-md-6">
+            <label class="form-label fw-semibold">شماره موبایل</label>
+            <input type="text" name="phone" value="{{ request.user.phone }}" class="form-control" readonly>
+        </div>
+
+
+        <div class="col-md-6">
+
+            <label class="form-label fw-semibold">تصویر پروفایل</label>
+
+            {% if request.user.image %}
+            <div class="mb-2">
+                <img src="{{ request.user.image.url }}" width="80" class="rounded">
+            </div>
+            {% endif %}
+
+            <input type="file"
+                   name="image"
+                   class="form-control"
+                   disabled>
+
+        </div>
+
+
+        <div class="col-md-6">
+            <label class="form-label fw-semibold">رمز عبور جدید</label>
+            <input type="password"
+                   name="password"
+                   class="form-control"
+                   disabled>
+        </div>
+
+
+        <div class="col-md-6">
+            <label class="form-label fw-semibold">تکرار رمز عبور</label>
+            <input type="password"
+                   name="password2"
+                   class="form-control"
+                   disabled>
+        </div>
+
+
+        <div class="col-md-6" id="captcha-wrapper" style="display:none;">
+            <label class="form-label fw-semibold">کد امنیتی</label>
+            {{ form.captcha }}
+        </div>
+
+    </div>
+
+
+    <div class="mt-4 d-flex gap-2">
+
+        <button type="button" class="btn btn-primary px-4" id="edit-btn">
+            ویرایش اطلاعات
+        </button>
+
+        <button type="submit" class="btn btn-success px-4 d-none" id="save-btn">
+            ذخیره تغییرات
+        </button>
+
+        <button type="button" class="btn btn-secondary px-4 d-none" id="cancel-btn">
+            لغو
+        </button>
+
+    </div>
+
+</form>

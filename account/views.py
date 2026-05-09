@@ -1,10 +1,19 @@
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import redirect
-from django.views.generic import FormView
+from django.views.generic import FormView, TemplateView, UpdateView
 from django.urls import reverse_lazy, reverse
-from .forms import OTPSendCodeForm, OTPVerifyCodeForm
+from .forms import OTPSendCodeForm, OTPVerifyCodeForm, ProfileForm
 from django.contrib import messages
 from django.contrib.auth import login
+from django.contrib.auth import get_user_model
+from django.contrib.auth import update_session_auth_hash
 
+User = get_user_model()
+
+
+# ------------------------------------------
+# --------- OTP login/signup views ---------
+# ------------------------------------------
 
 class OTPSendCodeView(FormView):
     template_name = 'account/send_otp.html'
@@ -58,3 +67,63 @@ class OTPVerifyCodeView(FormView):
         if request.user.is_authenticated:
             return redirect(self.success_url)
         return super().dispatch(request, *args, **kwargs)
+
+
+# ------------------------------------------
+# --------- phone-pass login views ---------
+# ------------------------------------------
+
+
+# ------------------------------------------
+# ----------- User profile views -----------
+# ------------------------------------------
+
+class ProfileView(LoginRequiredMixin, TemplateView):
+    template_name = "account/profile.html"
+
+
+class ProfileSectionView(LoginRequiredMixin, UpdateView):
+    model = User
+    form_class = ProfileForm
+    template_name = "account/panel_sections/personal_info.html"
+    success_url = reverse_lazy("account:profile")
+
+    def get_object(self, queryset=None):
+        """بازگرداندن کاربر جاری برای نمایش اطلاعات پروفایل"""
+        return self.request.user
+
+    def get_form_kwargs(self):
+        """
+        اطمینان حاصل می‌کند که هنگام دریافت GET اولیه، کپچا خنثی باشد
+        (چون کپچا فقط در حالت ویرایش نمایش داده می‌شود).
+        """
+        kwargs = super().get_form_kwargs()
+        if self.request.method == "GET":
+            # کپچا را حذف یا خنثی کن تا در نمایش اولیه اجباری نباشد
+            kwargs["initial"] = kwargs.get("initial", {})
+            kwargs["initial"]["captcha"] = None
+        return kwargs
+
+    def form_valid(self, form):
+        """
+        ذخیره‌ی اطلاعات کاربر + مدیریت تغییر رمز عبور
+        """
+        response = super().form_valid(form)
+        password = form.cleaned_data.get("password")
+
+        if password:
+            # اگر رمز وارد شده بود، رمز را تغییر بده و session را به‌روز کن
+            self.object.set_password(password)
+            self.object.save()
+            update_session_auth_hash(self.request, self.object)
+        else:
+            # اگر رمز خالی بود، فرم خطای خاصی نده و فیلدها را پاک کن
+            form.cleaned_data["password"] = ""
+            form.cleaned_data["password2"] = ""
+
+        messages.success(self.request, "اطلاعات حساب کاربری با موفقیت ذخیره شد.")
+        return response
+
+    def form_invalid(self, form):
+        messages.error(self.request, "خطا در ذخیره اطلاعات. لطفاً فرم را بررسی کنید.")
+        return super().form_invalid(form)

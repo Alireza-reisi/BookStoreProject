@@ -1,3 +1,4 @@
+import re
 from django import forms
 from django.contrib.auth import get_user_model
 from .models import OTP
@@ -6,6 +7,7 @@ from django.core.exceptions import ValidationError
 import random
 from django.utils import timezone
 from datetime import timedelta
+from captcha.fields import CaptchaField
 
 User = get_user_model()
 
@@ -20,7 +22,7 @@ class UserCreationForm(forms.ModelForm):
 
     class Meta:
         model = User
-        fields = ["phone", "is_admin", 'is_superuser']
+        fields = ["phone", "first_name", "last_name", "image", "is_admin", 'is_superuser']
 
     def clean_password2(self):
         password1 = self.cleaned_data.get("password1")
@@ -37,7 +39,7 @@ class UserChangeForm(forms.ModelForm):
 
     class Meta:
         model = User
-        fields = ["phone", "password", "is_active", "is_admin", 'is_superuser']
+        fields = ["phone", "first_name", "last_name", "image", "password", "is_active", "is_admin", 'is_superuser']
 
 
 # ------------------------------------------
@@ -136,3 +138,65 @@ class OTPVerifyCodeForm(forms.Form):
             user.save()
 
         return user
+
+
+# ------------------------------------------
+# ------------- profile forms --------------
+# ------------------------------------------
+class ProfileForm(forms.ModelForm):
+    captcha = CaptchaField()
+
+    password = forms.CharField(
+        required=False,
+        label="رمز عبور جدید",
+        widget=forms.PasswordInput(attrs={"class": "form-control"})
+    )
+
+    password2 = forms.CharField(
+        required=False,
+        label="تکرار رمز عبور",
+        widget=forms.PasswordInput(attrs={"class": "form-control"})
+    )
+
+    class Meta:
+        model = User
+        fields = [
+            "first_name",
+            "last_name",
+            "image",
+        ]
+
+        widgets = {
+            "first_name": forms.TextInput(attrs={"class": "form-control"}),
+            "last_name": forms.TextInput(attrs={"class": "form-control"}),
+            "image": forms.FileInput(attrs={"class": "form-control"}),
+        }
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        password1 = cleaned_data.get("password")
+        password2 = cleaned_data.get("password2")
+
+        if not password1 and not password2:
+            return cleaned_data
+
+        if not password1 or not password2:
+            raise ValidationError("برای تغییر رمز عبور، هر دو فیلد را وارد کنید.")
+
+        if len(password1) < 6:
+            raise ValidationError("رمز عبور باید حداقل ۶ کاراکتر باشد.")
+
+        if not re.search(r"[A-Za-z]", password1):
+            raise ValidationError("رمز عبور باید حداقل یک حرف داشته باشد.")
+
+        if not re.search(r"\d", password1):
+            raise ValidationError("رمز عبور باید حداقل یک عدد داشته باشد.")
+
+        if re.search(r"[<>{}\[\];\"'\\]", password1):
+            raise ValidationError("رمز عبور شامل کاراکترهای غیرمجاز است.")
+
+        if password1 != password2:
+            raise ValidationError("رمز عبور و تکرار آن یکسان نیستند.")
+
+        return cleaned_data

@@ -1,0 +1,236 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+پروفایل کاربر
+{% endblock %}
+
+{% block content %}
+<main>
+
+    <div class="breadcrumb-items">
+        <div class="row">
+            <ul class="breadcrumb">
+                <li>
+                    <a href="{% url 'pages:home' %}" class="breadcrumb-link">صفحه اصلی</a>
+                </li>
+                <li class="chevron"><span class="fa fa-chevron-left"></span></li>
+                <li>
+                    <span class="breadcrumb-active">پروفایل کاربری</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <section class="user-panel-section">
+        <div class="container-fluid">
+            <div class="row g-0 user-panel-wrapper">
+
+                <div class="col-xl-3 col-lg-4">
+                    <aside class="user-panel-sidebar">
+                        {% include "account/partials/profile_sidebar.html" %}
+                    </aside>
+                </div>
+
+                <div class="col-xl-9 col-lg-8">
+                    <div class="user-panel-content">
+                        <div class="user-content-card" id="user-panel-content">
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+</main>
+
+
+<script>
+
+    document.addEventListener("DOMContentLoaded", function () {
+
+        const contentContainer = document.getElementById("user-panel-content");
+        const sidebarLinks = document.querySelectorAll(".sidebar-link");
+        const menuTitles = document.querySelectorAll(".menu-title.collapsible");
+
+
+        function initProfileForm() {
+
+            const form = document.querySelector("#profile-form");
+            if (!form) return;
+
+            const textFields = form.querySelectorAll("input[type='text']");
+            const passwordFields = form.querySelectorAll("input[type='password']");
+            const fileField = form.querySelector("input[type='file']");
+            const captchaWrapper = document.querySelector("#captcha-wrapper");
+
+            const editBtn = document.querySelector("#edit-btn");
+            const saveBtn = document.querySelector("#save-btn");
+            const cancelBtn = document.querySelector("#cancel-btn");
+
+            if (!editBtn) return;
+
+            const initialData = {};
+
+            form.querySelectorAll("input").forEach(input => {
+                initialData[input.name] = input.value;
+            });
+
+
+            function enableEditMode() {
+
+                textFields.forEach(f => {
+                    if (f.name !== "phone") {
+                        f.removeAttribute("readonly");
+                    }
+                });
+
+                passwordFields.forEach(f => f.disabled = false);
+
+                if (fileField) fileField.disabled = false;
+
+                if (captchaWrapper) captchaWrapper.style.display = "block";
+
+                editBtn.classList.add("d-none");
+                saveBtn.classList.remove("d-none");
+                cancelBtn.classList.remove("d-none");
+            }
+
+
+            function disableEditMode() {
+
+                textFields.forEach(f => {
+                    f.setAttribute("readonly", true);
+                });
+
+                passwordFields.forEach(f => f.disabled = true);
+
+                if (fileField) fileField.disabled = true;
+
+                if (captchaWrapper) captchaWrapper.style.display = "none";
+
+                editBtn.classList.remove("d-none");
+                saveBtn.classList.add("d-none");
+                cancelBtn.classList.add("d-none");
+            }
+
+
+            function resetForm() {
+
+                form.querySelectorAll("input").forEach(input => {
+
+                    if (input.type !== "file") {
+                        input.value = initialData[input.name] || "";
+                    }
+
+                });
+
+            }
+
+
+            editBtn.addEventListener("click", enableEditMode);
+
+            cancelBtn.addEventListener("click", function () {
+
+                resetForm();
+                disableEditMode();
+
+            });
+
+
+            form.addEventListener("submit", function () {
+
+                passwordFields.forEach(f => f.disabled = false);
+
+                if (fileField) fileField.disabled = false;
+
+            });
+
+
+            disableEditMode();
+        }
+
+
+        function loadSection(url) {
+
+            fetch(url)
+                .then(response => response.text())
+                .then(html => {
+
+                    contentContainer.innerHTML = html;
+
+                    initProfileForm();
+
+                })
+                .catch(() => {
+
+                    contentContainer.innerHTML = "<p>خطا در بارگذاری محتوا</p>";
+
+                });
+
+        }
+
+
+        sidebarLinks.forEach(link => {
+
+            link.addEventListener("click", function (e) {
+
+                e.preventDefault();
+
+                const url = this.dataset.url;
+
+                if (!url) return;
+
+                sidebarLinks.forEach(l => l.classList.remove("active"));
+
+                this.classList.add("active");
+
+                loadSection(url);
+
+            });
+
+        });
+
+
+        menuTitles.forEach(title => {
+
+            title.addEventListener("click", function () {
+
+                this.classList.toggle("active");
+
+                const submenu = this.nextElementSibling;
+
+                if (submenu.classList.contains("open")) {
+
+                    submenu.classList.remove("open");
+                    submenu.style.maxHeight = null;
+
+                } else {
+
+                    submenu.classList.add("open");
+                    submenu.style.maxHeight = submenu.scrollHeight + "px";
+
+                }
+
+            });
+
+        });
+
+
+        document.querySelectorAll(".submenu.open").forEach(submenu => {
+            submenu.style.maxHeight = submenu.scrollHeight + "px";
+        });
+
+
+        const defaultLink = document.querySelector(".sidebar-link.active");
+
+        if (defaultLink) {
+            loadSection(defaultLink.dataset.url);
+        }
+
+    });
+
+</script>
+
+{% endblock %}
