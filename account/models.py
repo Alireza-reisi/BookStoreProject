@@ -1,8 +1,11 @@
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.dispatch import receiver
 from django.db.models.signals import pre_save, post_delete
 import os
+from django.utils import timezone
+from bookmanager.models import Book
 
 
 # ------------------------------------------
@@ -119,3 +122,132 @@ class OTP(models.Model):
 
     def __str__(self):
         return self.phone
+
+
+# ------------------------------------------
+# ---------- buy and order models ----------
+# ------------------------------------------
+
+
+class Coupon(models.Model):
+    PERCENT = 0
+    FIXED = 1
+    DISCOUNT_TYPE = ((PERCENT, "درصدی"), (FIXED, "مبلغ ثابت"))
+
+    code = models.CharField(max_length=20, unique=True, verbose_name="کد تخفیف")
+    discount_type = models.SmallIntegerField(choices=DISCOUNT_TYPE, verbose_name="نوع تخفیف")
+    amount = models.PositiveIntegerField(verbose_name="مقدار تخفیف")
+    min_order_amount = models.PositiveIntegerField(default=0, verbose_name="حداقل مبلغ سفارش")
+    valid_from = models.DateTimeField(verbose_name="معتبر از")
+    valid_to = models.DateTimeField(verbose_name="معتبر تا")
+    max_usage = models.PositiveIntegerField(default=1, verbose_name="حداکثر دفعات استفاده")
+    used_count = models.PositiveIntegerField(default=0, verbose_name="تعداد استفاده شده")
+    is_active = models.BooleanField(default=True, verbose_name="فعال است؟")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="تاریخ ایجاد")
+
+    class Meta:
+        verbose_name = "کد تخفیف"
+        verbose_name_plural = "کدهای تخفیف"
+
+    def clean(self):
+        if self.discount_type == self.PERCENT and not (1 <= self.amount <= 100):
+            raise ValidationError({"amount": "در تخفیف درصدی، مقدار باید بین 1 تا 100 باشد."})
+
+    def is_valid(self, order_total=None):
+        now = timezone.now()
+        valid = (
+                self.is_active
+                and self.valid_from <= now <= self.valid_to
+                and self.used_count < self.max_usage
+        )
+        if order_total is not None:
+            valid = valid and order_total >= self.min_order_amount
+        return valid
+
+    def __str__(self):
+        return self.code
+
+
+class Order(models.Model):
+    STATUS = (
+        ("pending", "در انتظار پرداخت"),
+        ("paid", "پرداخت شده"),
+        ("processing", "در حال پردازش"),
+        ("sent", "ارسال شده"),
+        ("completed", "تکمیل شده"),
+        ("canceled", "لغو شده"),
+    )
+
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True,
+                             related_name="orders", verbose_name="کاربر")
+    status = models.CharField(max_length=20, choices=STATUS, default="pending", verbose_name="وضعیت")
+    total_price = models.PositiveIntegerField(default=0, verbose_name="قیمت کل (بدون تخفیف)")
+    discount_amount = models.PositiveIntegerField(default=0, verbose_name="مبلغ تخفیف")
+
+    coupon = models.ForeignKey(Coupon, on_delete=models.SET_NULL, null=True, blank=True, related_name="orders",
+                               verbose_name="کد تخفیف")
+
+    is_paid = models.BooleanField(default=False, verbose_name="پرداخت شده")
+    tracking_code = models.CharField(max_length=120, blank=True, null=True, verbose_name="کد رهگیری پستی")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="تاریخ ثبت")
+    updated_at = models.DateTimeField(auto_now=True, verbose_name="آخرین تغییر")
+
+    class Meta:
+        ordering = ["-created_at"]
+        verbose_name = "سفارش"
+        verbose_name_plural = "سفارش‌ها"
+
+    def __str__(self):
+        return f"سفارش شماره {self.id}"
+
+    @property
+    def items_total(self):
+        return sum(item.total_price for item in self.items.all())
+
+    @property
+    def final_price(self):
+        return max(self.items_total - self.discount_amount, 0)
+
+
+class OrderItem(models.Model):
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name="items", verbose_name="سفارش")
+
+    product = models.ForeignKey(Book, on_delete=models.SET_NULL, null=True, blank=True,
+                                verbose_name="محصول")
+    product_title = models.CharField(max_length=255, verbose_name="نام محصول (در لحظه خرید)")
+
+    price = models.PositiveIntegerField(verbose_name="قیمت واحد (در لحظه خرید)")
+    quantity = models.PositiveIntegerField(default=1, verbose_name="تعداد")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="تاریخ ایجاد")
+
+    class Meta:
+        verbose_name = "آیتم سفارش"
+        verbose_name_plural = "آیتم‌های سفارش"
+
+    def __str__(self):
+        return f"{self.product_title} x {self.quantity}"
+
+    @property
+    def total_price(self):
+        return self.price * self.quantity
+
+
+class Payment(models.Model):
+    STATUS = [
+        ("pending", "در انتظار"),
+        ("success", "موفق"),
+        ("failed", "ناموفق")
+    ]
+
+    order = models.OneToOneField(Order, on_delete=models.CASCADE, related_name="payment", verbose_name="سفارش")
+    amount = models.PositiveIntegerField(verbose_name="مبلغ پرداختی")
+    authority = models.CharField(max_length=255, db_index=True, verbose_name="توکن درگاه")
+    ref_id = models.CharField(max_length=255, blank=True, null=True, verbose_name="شماره پیگیری (RefID)")
+    status = models.CharField(max_length=10, choices=STATUS, default="pending", verbose_name="وضعیت پرداخت")
+    gateway = models.CharField(max_length=50, default="zarinpal", verbose_name="درگاه بانکی")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="زمان شروع تراکنش")
+    verified_at = models.DateTimeField(null=True, blank=True, verbose_name="زمان تایید نهایی")
+
+    class Meta:
+        verbose_name = "پرداخت"
+        verbose_name_plural = "پرداخت‌ها"
